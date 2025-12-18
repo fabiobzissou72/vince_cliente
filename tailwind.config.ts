@@ -10,13 +10,14 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        // Cores da Vinci Barbearia
+        // Cores da Vince Barbearia
         vinci: {
-          primary: '#1e3a8a', // Azul escuro
-          secondary: '#3b82f6', // Azul médio
-          accent: '#60a5fa', // Azul claro
+          primary: '#1c283c', // Azul escuro Vince
+          secondary: '#2d3f5f', // Azul médio
+          accent: '#4a6082', // Azul claro
           dark: '#0f172a', // Quase preto
           light: '#f8fafc', // Quase branco
+          gold: '#c8a871', // Dourado dos botões
         },
         background: 'hsl(var(--background))',
         foreground: 'hsl(var(--foreground))',
