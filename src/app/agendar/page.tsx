@@ -11,8 +11,8 @@ import { toast } from 'sonner'
 import { format, addDays } from 'date-fns'
 import { ptBR } from 'date-fns/locale'
 
-const API_BASE = 'https://vincibarbearia.vercel.app'
-const API_TOKEN = 'vinci_j7mNuInUyCKojb6HH79jOMHH8zwb03hBwSONDhodZbOtRMbGMchazIO1zW7Ea7uv'
+// Usando API Routes locais para evitar CORS
+const API_PROXY = '/api/proxy'
 
 type TabType = 'servicos' | 'produtos' | 'planos'
 
@@ -72,29 +72,24 @@ export default function AgendarPage() {
       setLoading(true)
       setError(null)
 
-      const headers = {
-        'Authorization': `Bearer ${API_TOKEN}`,
-        'Content-Type': 'application/json'
-      }
-
       console.log('🔥 Buscando dados da API...')
 
-      // SERVIÇOS
-      const servicosRes = await fetch(`${API_BASE}/api/servicos`, { headers })
+      // SERVIÇOS (via proxy local - sem CORS)
+      const servicosRes = await fetch(`${API_PROXY}/servicos`)
       console.log('📡 Serviços Response:', servicosRes.status)
       const servicosData = await servicosRes.json()
       console.log('✅ Serviços Data:', servicosData)
       setServicos(Array.isArray(servicosData) ? servicosData.filter((s: Servico) => s.ativo) : [])
 
-      // PRODUTOS
-      const produtosRes = await fetch(`${API_BASE}/api/produtos/listar?ativo=true`, { headers })
+      // PRODUTOS (via proxy local - sem CORS)
+      const produtosRes = await fetch(`${API_PROXY}/produtos`)
       console.log('📡 Produtos Response:', produtosRes.status)
       const produtosData = await produtosRes.json()
       console.log('✅ Produtos Data:', produtosData)
       setProdutos(produtosData.produtos || [])
 
-      // PLANOS
-      const planosRes = await fetch(`${API_BASE}/api/planos/listar?ativo=true`, { headers })
+      // PLANOS (via proxy local - sem CORS)
+      const planosRes = await fetch(`${API_PROXY}/planos`)
       console.log('📡 Planos Response:', planosRes.status)
       const planosData = await planosRes.json()
       console.log('✅ Planos Data:', planosData)
