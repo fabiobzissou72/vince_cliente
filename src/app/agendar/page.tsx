@@ -93,10 +93,14 @@ export default function AgendarPage() {
   }, [])
 
   useEffect(() => {
+    console.log('🔄 useEffect disparado:', { etapa, dataSelecionada, temServico: carrinho.some(i => i.tipo === 'servico') })
     if (etapa === 'agendamento' && dataSelecionada && carrinho.some(i => i.tipo === 'servico')) {
+      console.log('✅ Vai buscar horários')
       buscarHorarios()
+    } else {
+      console.log('❌ Não vai buscar horários')
     }
-  }, [dataSelecionada, barbeiroSelecionado])
+  }, [dataSelecionada, barbeiroSelecionado, etapa, carrinho])
 
   async function carregarDados() {
     try {
@@ -135,17 +139,27 @@ export default function AgendarPage() {
       setLoadingHorarios(true)
       const servicoIds = carrinho.filter(i => i.tipo === 'servico').map(i => i.id).join(',')
 
+      console.log('🔍 Buscando horários com:', { dataSelecionada, barbeiroSelecionado, servicoIds })
+
       if (!servicoIds) {
+        console.log('❌ Nenhum serviço no carrinho')
         setHorarios([])
         return
       }
 
       const url = `${API_PROXY}/horarios?data=${dataSelecionada}${barbeiroSelecionado ? `&barbeiro=${barbeiroSelecionado}` : ''}&servico_ids=${servicoIds}`
+      console.log('📡 URL da API:', url)
+
       const response = await fetch(url)
+      console.log('📡 Response status:', response.status)
+
       const data = await response.json()
-      setHorarios(data.horarios || [])
+      console.log('📦 Dados retornados:', data)
+
+      setHorarios(data.horarios || data || [])
+      console.log('✅ Horários definidos:', data.horarios || data || [])
     } catch (err) {
-      console.error('Erro ao buscar horários:', err)
+      console.error('❌ Erro ao buscar horários:', err)
       setHorarios([])
     } finally {
       setLoadingHorarios(false)
