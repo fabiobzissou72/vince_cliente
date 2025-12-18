@@ -86,15 +86,8 @@ export default function LoginPage() {
 
       if (resultado.success && resultado.cliente) {
         toast.success('Login realizado com sucesso!')
-
-        // Se precisa trocar senha, redireciona
-        if (resultado.precisaTrocarSenha) {
-          setClienteLogado(resultado.cliente)
-          router.push('/trocar-senha')
-        } else {
-          setClienteLogado(resultado.cliente)
-          router.push('/dashboard')
-        }
+        setClienteLogado(resultado.cliente)
+        router.push('/dashboard')
       } else {
         toast.error(resultado.error || 'Erro ao fazer login')
       }
@@ -130,13 +123,15 @@ export default function LoginPage() {
             <div>
               <label className="block text-sm font-medium mb-2">Telefone</label>
               <div className="relative">
-                <Phone className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
+                <div className="absolute left-3 top-1/2 -translate-y-1/2 flex items-center justify-center w-5 h-5 pointer-events-none z-10">
+                  <Phone className="w-5 h-5 text-muted-foreground" />
+                </div>
                 <input
                   type="tel"
                   placeholder="(11) 98765-4321"
                   value={telefone}
                   onChange={handleTelefoneChange}
-                  className="input-field pl-11"
+                  className="input-field pl-11 relative z-0"
                   disabled={loading}
                   autoFocus
                 />
@@ -195,10 +190,10 @@ export default function LoginPage() {
                   <MessageSquare className="w-5 h-5 text-green-500 flex-shrink-0 mt-0.5" />
                   <div className="flex-1">
                     <p className="text-sm font-medium text-green-700 dark:text-green-400 mb-1">
-                      Senha Temporária Enviada!
+                      Senha Gerada com Sucesso!
                     </p>
                     <p className="text-sm text-green-600 dark:text-green-300">
-                      Enviamos uma senha de 6 dígitos para seu WhatsApp. Ela é válida por 15 minutos.
+                      Sua senha de acesso de 6 dígitos foi gerada. Use ela para fazer login.
                     </p>
                     {senhaTemporariaGerada && (
                       <p className="text-sm font-mono font-bold text-green-700 dark:text-green-400 mt-2 bg-green-500/10 px-3 py-2 rounded">
@@ -216,20 +211,22 @@ export default function LoginPage() {
                 {senhaTemporariaEnviada ? 'Senha Temporária' : 'Senha'}
               </label>
               <div className="relative">
-                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
+                <div className="absolute left-3 top-1/2 -translate-y-1/2 flex items-center justify-center w-5 h-5 pointer-events-none z-10">
+                  <Lock className="w-5 h-5 text-muted-foreground" />
+                </div>
                 <input
                   type={mostrarSenha ? 'text' : 'password'}
                   placeholder={senhaTemporariaEnviada ? 'Digite os 6 dígitos' : 'Digite sua senha'}
                   value={senha}
                   onChange={(e) => setSenha(e.target.value)}
-                  className="input-field pl-11 pr-11"
+                  className="input-field pl-11 pr-11 relative z-0"
                   disabled={loading}
                   autoFocus
                 />
                 <button
                   type="button"
                   onClick={() => setMostrarSenha(!mostrarSenha)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 z-10"
                   disabled={loading}
                 >
                   {mostrarSenha ? (
@@ -267,16 +264,16 @@ export default function LoginPage() {
                     const resultado = await enviarSenhaTemporaria(telefone)
                     if (resultado.success) {
                       setSenhaTemporariaGerada(resultado.senhaTemporaria || '')
-                      toast.success('Nova senha enviada!')
+                      toast.success('Nova senha gerada!')
                     } else {
-                      toast.error('Erro ao reenviar senha')
+                      toast.error('Erro ao gerar senha')
                     }
                     setLoading(false)
                   }}
                   disabled={loading}
                   className="text-sm text-vinci-primary hover:underline"
                 >
-                  Reenviar senha temporária
+                  Gerar nova senha
                 </button>
               </div>
             )}

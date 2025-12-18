@@ -267,6 +267,7 @@ export async function verificarCliente(telefone: string): Promise<{
 /**
  * Gera e envia senha temporária via WhatsApp
  * Para clientes que existem mas não têm senha
+ * SIMPLIFICADO: Salva direto como senha normal (sem colunas extras)
  */
 export async function enviarSenhaTemporaria(telefone: string): Promise<{
   success: boolean
@@ -291,22 +292,14 @@ export async function enviarSenhaTemporaria(telefone: string): Promise<{
     const senhaTemporaria = Math.floor(100000 + Math.random() * 900000).toString()
     const senhaHash = await bcrypt.hash(senhaTemporaria, 10)
 
-    // Calcula tempo de expiração (15 minutos)
-    const expiraEm = new Date()
-    expiraEm.setMinutes(expiraEm.getMinutes() + 15)
-
-    // Salva senha temporária no banco
+    // Salva como senha normal (sem expiração, sem flags)
     const { error: erroUpdate } = await supabase
       .from('clientes')
-      .update({
-        senha: senhaHash,
-        senha_temporaria_expira: expiraEm.toISOString(),
-        precisa_trocar_senha: true
-      })
+      .update({ senha: senhaHash })
       .eq('id', cliente.id)
 
     if (erroUpdate) {
-      console.error('Erro ao salvar senha temporária:', erroUpdate)
+      console.error('Erro ao salvar senha:', erroUpdate)
       return { success: false, error: 'Erro ao gerar senha temporária' }
     }
 
@@ -316,7 +309,7 @@ export async function enviarSenhaTemporaria(telefone: string): Promise<{
 
     // Em produção, você deve integrar com Evolution API, Twilio, etc.
     // Exemplo de mensagem:
-    // const mensagem = `Olá ${cliente.nome_completo}! Sua senha temporária para acessar a Vince Barbearia é: ${senhaTemporaria}. Ela expira em 15 minutos.`
+    // const mensagem = `Olá ${cliente.nome_completo}! Sua senha para acessar a Vince Barbearia é: ${senhaTemporaria}`
 
     return {
       success: true,
@@ -329,8 +322,8 @@ export async function enviarSenhaTemporaria(telefone: string): Promise<{
 }
 
 /**
- * Login com verificação de senha temporária
- * Retorna se precisa trocar senha
+ * Login simplificado (sem validação de expiração)
+ * Usa a mesma lógica do loginCliente
  */
 export async function loginComSenhaTemporaria(telefone: string, senha: string): Promise<AuthResponse> {
   try {
@@ -351,20 +344,6 @@ export async function loginComSenhaTemporaria(telefone: string, senha: string): 
       return { success: false, error: 'Senha não cadastrada' }
     }
 
-    // Verifica se senha temporária expirou
-    if (cliente.senha_temporaria_expira) {
-      const expira = new Date(cliente.senha_temporaria_expira)
-      if (expira < new Date()) {
-        // Senha temporária expirou
-        await supabase
-          .from('clientes')
-          .update({ senha: null, senha_temporaria_expira: null })
-          .eq('id', cliente.id)
-
-        return { success: false, error: 'Senha temporária expirou. Solicite uma nova.' }
-      }
-    }
-
     // Verifica senha
     const senhaCorreta = await bcrypt.compare(senha, cliente.senha)
     if (!senhaCorreta) {
@@ -383,7 +362,7 @@ export async function loginComSenhaTemporaria(telefone: string, senha: string): 
     return {
       success: true,
       cliente: clienteSemSenha as Cliente,
-      precisaTrocarSenha: !!cliente.precisa_trocar_senha
+      precisaTrocarSenha: false // Sempre false, não usa flag temporária
     }
   } catch (error) {
     console.error('Erro no login:', error)
@@ -392,7 +371,7 @@ export async function loginComSenhaTemporaria(telefone: string, senha: string): 
 }
 
 /**
- * Troca senha temporária por senha definitiva
+ * Troca senha (simplificado - apenas atualiza a senha)
  */
 export async function trocarSenhaTemporaria(
   clienteId: string,
@@ -402,14 +381,10 @@ export async function trocarSenhaTemporaria(
     // Hash da nova senha
     const novaSenhaHash = await bcrypt.hash(novaSenha, 10)
 
-    // Atualiza com senha definitiva e remove flags temporárias
+    // Atualiza senha
     const { error } = await supabase
       .from('clientes')
-      .update({
-        senha: novaSenhaHash,
-        precisa_trocar_senha: false,
-        senha_temporaria_expira: null
-      })
+      .update({ senha: novaSenhaHash })
       .eq('id', clienteId)
 
     if (error) {
