@@ -5,6 +5,8 @@ export interface AuthResponse {
   success: boolean
   cliente?: Cliente
   error?: string
+  precisaTrocarSenha?: boolean
+  senhaTemporariaEnviada?: boolean
 }
 
 /**
@@ -226,4 +228,198 @@ export function formatarTelefone(telefone: string): string {
     return `(${limpo.slice(0, 2)}) ${limpo.slice(2, 6)}-${limpo.slice(6)}`
   }
   return telefone
+}
+
+/**
+ * Verifica se cliente existe e se tem senha cadastrada
+ * Retorna informações sobre o status do cliente
+ */
+export async function verificarCliente(telefone: string): Promise<{
+  existe: boolean
+  temSenha: boolean
+  cliente?: Cliente
+  error?: string
+}> {
+  try {
+    const telefoneLimpo = telefone.replace(/\D/g, '')
+
+    const { data: cliente, error } = await supabase
+      .from('clientes')
+      .select('*')
+      .eq('telefone', telefoneLimpo)
+      .single()
+
+    if (error || !cliente) {
+      return { existe: false, temSenha: false, error: 'Cliente não encontrado' }
+    }
+
+    return {
+      existe: true,
+      temSenha: !!cliente.senha,
+      cliente: cliente as Cliente
+    }
+  } catch (error) {
+    console.error('Erro ao verificar cliente:', error)
+    return { existe: false, temSenha: false, error: 'Erro ao verificar cliente' }
+  }
+}
+
+/**
+ * Gera e envia senha temporária via WhatsApp
+ * Para clientes que existem mas não têm senha
+ */
+export async function enviarSenhaTemporaria(telefone: string): Promise<{
+  success: boolean
+  senhaTemporaria?: string
+  error?: string
+}> {
+  try {
+    const telefoneLimpo = telefone.replace(/\D/g, '')
+
+    // Busca cliente
+    const { data: cliente, error } = await supabase
+      .from('clientes')
+      .select('*')
+      .eq('telefone', telefoneLimpo)
+      .single()
+
+    if (error || !cliente) {
+      return { success: false, error: 'Cliente não encontrado' }
+    }
+
+    // Gera senha temporária de 6 dígitos
+    const senhaTemporaria = Math.floor(100000 + Math.random() * 900000).toString()
+    const senhaHash = await bcrypt.hash(senhaTemporaria, 10)
+
+    // Calcula tempo de expiração (15 minutos)
+    const expiraEm = new Date()
+    expiraEm.setMinutes(expiraEm.getMinutes() + 15)
+
+    // Salva senha temporária no banco
+    const { error: erroUpdate } = await supabase
+      .from('clientes')
+      .update({
+        senha: senhaHash,
+        senha_temporaria_expira: expiraEm.toISOString(),
+        precisa_trocar_senha: true
+      })
+      .eq('id', cliente.id)
+
+    if (erroUpdate) {
+      console.error('Erro ao salvar senha temporária:', erroUpdate)
+      return { success: false, error: 'Erro ao gerar senha temporária' }
+    }
+
+    // TODO: Integrar com API de WhatsApp para enviar a senha
+    // Por enquanto, retorna a senha (APENAS PARA DESENVOLVIMENTO)
+    console.log(`Senha temporária para ${cliente.nome_completo}: ${senhaTemporaria}`)
+
+    // Em produção, você deve integrar com Evolution API, Twilio, etc.
+    // Exemplo de mensagem:
+    // const mensagem = `Olá ${cliente.nome_completo}! Sua senha temporária para acessar a Vince Barbearia é: ${senhaTemporaria}. Ela expira em 15 minutos.`
+
+    return {
+      success: true,
+      senhaTemporaria // Remover em produção, apenas para dev
+    }
+  } catch (error) {
+    console.error('Erro ao enviar senha temporária:', error)
+    return { success: false, error: 'Erro ao enviar senha temporária' }
+  }
+}
+
+/**
+ * Login com verificação de senha temporária
+ * Retorna se precisa trocar senha
+ */
+export async function loginComSenhaTemporaria(telefone: string, senha: string): Promise<AuthResponse> {
+  try {
+    const telefoneLimpo = telefone.replace(/\D/g, '')
+
+    // Busca cliente
+    const { data: cliente, error } = await supabase
+      .from('clientes')
+      .select('*')
+      .eq('telefone', telefoneLimpo)
+      .single()
+
+    if (error || !cliente) {
+      return { success: false, error: 'Telefone não cadastrado' }
+    }
+
+    if (!cliente.senha) {
+      return { success: false, error: 'Senha não cadastrada' }
+    }
+
+    // Verifica se senha temporária expirou
+    if (cliente.senha_temporaria_expira) {
+      const expira = new Date(cliente.senha_temporaria_expira)
+      if (expira < new Date()) {
+        // Senha temporária expirou
+        await supabase
+          .from('clientes')
+          .update({ senha: null, senha_temporaria_expira: null })
+          .eq('id', cliente.id)
+
+        return { success: false, error: 'Senha temporária expirou. Solicite uma nova.' }
+      }
+    }
+
+    // Verifica senha
+    const senhaCorreta = await bcrypt.compare(senha, cliente.senha)
+    if (!senhaCorreta) {
+      return { success: false, error: 'Senha incorreta' }
+    }
+
+    // Atualiza último acesso
+    await supabase
+      .from('clientes')
+      .update({ ultimo_acesso: new Date().toISOString() })
+      .eq('id', cliente.id)
+
+    // Remove senha do objeto retornado
+    const { senha: _, ...clienteSemSenha } = cliente
+
+    return {
+      success: true,
+      cliente: clienteSemSenha as Cliente,
+      precisaTrocarSenha: !!cliente.precisa_trocar_senha
+    }
+  } catch (error) {
+    console.error('Erro no login:', error)
+    return { success: false, error: 'Erro ao fazer login' }
+  }
+}
+
+/**
+ * Troca senha temporária por senha definitiva
+ */
+export async function trocarSenhaTemporaria(
+  clienteId: string,
+  novaSenha: string
+): Promise<AuthResponse> {
+  try {
+    // Hash da nova senha
+    const novaSenhaHash = await bcrypt.hash(novaSenha, 10)
+
+    // Atualiza com senha definitiva e remove flags temporárias
+    const { error } = await supabase
+      .from('clientes')
+      .update({
+        senha: novaSenhaHash,
+        precisa_trocar_senha: false,
+        senha_temporaria_expira: null
+      })
+      .eq('id', clienteId)
+
+    if (error) {
+      console.error('Erro ao trocar senha:', error)
+      return { success: false, error: 'Erro ao trocar senha' }
+    }
+
+    return { success: true }
+  } catch (error) {
+    console.error('Erro ao trocar senha:', error)
+    return { success: false, error: 'Erro ao trocar senha' }
+  }
 }

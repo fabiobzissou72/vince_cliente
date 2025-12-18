@@ -11,6 +11,7 @@ interface AuthContextType {
   cadastrar: (dados: any) => Promise<AuthResponse>
   logout: () => void
   atualizarCliente: (cliente: Cliente) => void
+  setClienteLogado: (cliente: Cliente) => void
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined)
@@ -67,8 +68,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setCliente(clienteAtualizado)
   }
 
+  const setClienteLogado = (clienteLogado: Cliente) => {
+    setCliente(clienteLogado)
+  }
+
   return (
-    <AuthContext.Provider value={{ cliente, loading, login, cadastrar, logout, atualizarCliente }}>
+    <AuthContext.Provider value={{ cliente, loading, login, cadastrar, logout, atualizarCliente, setClienteLogado }}>
       {children}
     </AuthContext.Provider>
   )
