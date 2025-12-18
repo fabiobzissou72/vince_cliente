@@ -8,7 +8,8 @@ import BottomNav from '@/components/BottomNav'
 import { User, Mail, Phone, Calendar, Briefcase, Heart, Users, MessageSquare, Lock, LogOut, Edit2, Save, X, Loader2 } from 'lucide-react'
 import { atualizarDadosCliente } from '@/lib/agendamentos'
 import { atualizarSenha } from '@/lib/auth'
-import { formatarTelefone, formatarData } from '@/lib/utils'
+import { formatarTelefone } from '@/lib/auth'
+import { formatarData } from '@/lib/utils'
 import { toast } from 'sonner'
 
 export default function PerfilPage() {

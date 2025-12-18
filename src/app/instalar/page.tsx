@@ -51,10 +51,10 @@ export default function InstalarPage() {
                 2
               </div>
               <div className="flex-1">
-                <p className="font-medium mb-2">Selecione "Instalar aplicativo" ou "Adicionar à tela inicial"</p>
+                <p className="font-medium mb-2">Selecione &quot;Instalar aplicativo&quot; ou &quot;Adicionar à tela inicial&quot;</p>
                 <div className="flex items-center space-x-2 text-sm text-muted-foreground">
                   <Download className="w-4 h-4" />
-                  <span>Pode aparecer como "Adicionar ao ecrã principal"</span>
+                  <span>Pode aparecer como &quot;Adicionar ao ecrã principal&quot;</span>
                 </div>
               </div>
             </div>
@@ -67,7 +67,7 @@ export default function InstalarPage() {
                 <p className="font-medium mb-2">Confirme a instalação</p>
                 <div className="flex items-center space-x-2 text-sm text-muted-foreground">
                   <CheckCircle className="w-4 h-4" />
-                  <span>Toque em "Instalar" ou "Adicionar"</span>
+                  <span>Toque em &quot;Instalar&quot; ou &quot;Adicionar&quot;</span>
                 </div>
               </div>
             </div>
@@ -115,7 +115,7 @@ export default function InstalarPage() {
                 <p className="font-medium mb-2">Role para baixo e encontre</p>
                 <div className="flex items-center space-x-2 text-sm text-muted-foreground">
                   <Download className="w-4 h-4" />
-                  <span>"Adicionar à Tela de Início" ou "Add to Home Screen"</span>
+                  <span>&quot;Adicionar à Tela de Início&quot; ou &quot;Add to Home Screen&quot;</span>
                 </div>
               </div>
             </div>
@@ -125,7 +125,7 @@ export default function InstalarPage() {
                 3
               </div>
               <div className="flex-1">
-                <p className="font-medium mb-2">Confirme o nome e toque em "Adicionar"</p>
+                <p className="font-medium mb-2">Confirme o nome e toque em &quot;Adicionar&quot;</p>
                 <div className="flex items-center space-x-2 text-sm text-muted-foreground">
                   <CheckCircle className="w-4 h-4" />
                   <span>O app será adicionado à tela inicial</span>

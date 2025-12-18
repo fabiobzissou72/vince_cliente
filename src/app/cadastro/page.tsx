@@ -5,7 +5,8 @@ import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { useAuth } from '@/contexts/AuthContext'
 import { ArrowLeft, User, Phone, Mail, Lock, Eye, EyeOff, Calendar, Briefcase, Heart, Users, MessageSquare, HelpCircle, Loader2 } from 'lucide-react'
-import { formatarTelefone, validarEmail } from '@/lib/auth'
+import { formatarTelefone } from '@/lib/auth'
+import { validarEmail } from '@/lib/utils'
 import { toast } from 'sonner'
 
 export default function CadastroPage() {
