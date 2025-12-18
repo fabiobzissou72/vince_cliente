@@ -1,0 +1,64 @@
+import type { Metadata, Viewport } from 'next'
+import { Inter } from 'next/font/google'
+import './globals.css'
+import { AuthProvider } from '@/contexts/AuthContext'
+import { ThemeProvider } from 'next-themes'
+import { Toaster } from 'sonner'
+
+const inter = Inter({ subsets: ['latin'] })
+
+export const metadata: Metadata = {
+  title: 'Vinci Barbearia - Cliente',
+  description: 'Agende seu horário na Vinci Barbearia',
+  generator: 'Next.js',
+  manifest: '/manifest.json',
+  keywords: ['barbearia', 'vinci', 'agendamento', 'corte', 'cabelo', 'barba'],
+  authors: [
+    {
+      name: 'Vinci Barbearia',
+      url: 'https://vincibarbearia.com.br',
+    },
+  ],
+  icons: [
+    { rel: 'apple-touch-icon', url: '/icons/icon-128x128.png' },
+    { rel: 'icon', url: '/icons/icon-128x128.png' },
+  ],
+}
+
+export const viewport: Viewport = {
+  themeColor: [
+    { media: '(prefers-color-scheme: light)', color: '#1e3a8a' },
+    { media: '(prefers-color-scheme: dark)', color: '#0f172a' },
+  ],
+  width: 'device-width',
+  initialScale: 1,
+  maximumScale: 1,
+  userScalable: false,
+}
+
+export default function RootLayout({
+  children,
+}: Readonly<{
+  children: React.ReactNode
+}>) {
+  return (
+    <html lang="pt-BR" suppressHydrationWarning>
+      <head>
+        <link rel="apple-touch-icon" sizes="180x180" href="/icons/icon-192x192.png" />
+        <meta name="apple-mobile-web-app-capable" content="yes" />
+        <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+        <meta name="apple-mobile-web-app-title" content="Vinci" />
+        <meta name="format-detection" content="telephone=no" />
+        <meta name="mobile-web-app-capable" content="yes" />
+      </head>
+      <body className={inter.className}>
+        <ThemeProvider attribute="class" defaultTheme="dark" enableSystem>
+          <AuthProvider>
+            {children}
+            <Toaster position="top-center" richColors />
+          </AuthProvider>
+        </ThemeProvider>
+      </body>
+    </html>
+  )
+}
