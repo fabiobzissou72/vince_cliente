@@ -6,14 +6,14 @@ import { Providers } from './providers'
 const inter = Inter({ subsets: ['latin'] })
 
 export const metadata: Metadata = {
-  title: 'Vinci Barbearia - Cliente',
-  description: 'Agende seu horário na Vinci Barbearia',
+  title: 'Vince Barbearia - Cliente',
+  description: 'Agende seu horário na Vince Barbearia',
   generator: 'Next.js',
   manifest: '/manifest.json',
   keywords: ['barbearia', 'vinci', 'agendamento', 'corte', 'cabelo', 'barba'],
   authors: [
     {
-      name: 'Vinci Barbearia',
+      name: 'Vince Barbearia',
       url: 'https://vincibarbearia.com.br',
     },
   ],

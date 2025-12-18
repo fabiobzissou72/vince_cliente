@@ -3,6 +3,7 @@
 import { AuthProvider } from '@/contexts/AuthContext'
 import { ThemeProvider } from 'next-themes'
 import { Toaster } from 'sonner'
+import InstallPrompt from '@/components/InstallPrompt'
 
 export function Providers({ children }: { children: React.ReactNode }) {
   return (
@@ -10,6 +11,7 @@ export function Providers({ children }: { children: React.ReactNode }) {
       <AuthProvider>
         {children}
         <Toaster position="top-center" richColors />
+        <InstallPrompt />
       </AuthProvider>
     </ThemeProvider>
   )

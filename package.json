@@ -1,7 +1,7 @@
 {
-  "name": "vinci-cliente-app",
+  "name": "vince-cliente-app",
   "version": "1.0.0",
-  "description": "Aplicativo PWA para clientes da Vinci Barbearia",
+  "description": "Aplicativo PWA para clientes da Vince Barbearia",
   "private": true,
   "scripts": {
     "dev": "next dev -p 3001",
