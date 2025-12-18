@@ -155,9 +155,20 @@ export default function AgendarPage() {
 
       const data = await response.json()
       console.log('📦 Dados retornados:', data)
+      console.log('📦 Tipo de data:', typeof data, 'É array?', Array.isArray(data))
 
-      setHorarios(data.horarios || data || [])
-      console.log('✅ Horários definidos:', data.horarios || data || [])
+      // Trata diferentes formatos de resposta
+      let horariosArray = []
+      if (Array.isArray(data)) {
+        horariosArray = data
+      } else if (data.horarios && Array.isArray(data.horarios)) {
+        horariosArray = data.horarios
+      } else if (typeof data === 'object') {
+        console.log('⚠️ Resposta é objeto, não array:', Object.keys(data))
+      }
+
+      setHorarios(horariosArray)
+      console.log('✅ Horários definidos:', horariosArray)
     } catch (err) {
       console.error('❌ Erro ao buscar horários:', err)
       setHorarios([])
