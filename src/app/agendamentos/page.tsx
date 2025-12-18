@@ -35,7 +35,7 @@ export default function AgendamentosPage() {
     if (!cliente) return
 
     setLoading(true)
-    const dados = await buscarAgendamentosCliente(cliente.id, filtro)
+    const dados = await buscarAgendamentosCliente(cliente.telefone, filtro)
     setAgendamentos(dados)
     setLoading(false)
   }

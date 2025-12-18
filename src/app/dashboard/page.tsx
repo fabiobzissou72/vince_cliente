@@ -33,7 +33,7 @@ export default function DashboardPage() {
     if (!cliente) return
 
     setLoading(true)
-    const agendamentos = await buscarAgendamentosCliente(cliente.id, 'proximos')
+    const agendamentos = await buscarAgendamentosCliente(cliente.telefone, 'proximos')
     setProximosAgendamentos(agendamentos.slice(0, 3)) // Mostra apenas os 3 próximos
     setLoading(false)
   }

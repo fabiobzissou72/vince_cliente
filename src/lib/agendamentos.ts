@@ -96,16 +96,39 @@ export async function criarAgendamento(dados: {
 }
 
 /**
- * Busca agendamentos do cliente por telefone
+ * Busca agendamentos do cliente por telefone ou ID
  */
-export async function buscarAgendamentosCliente(telefone: string): Promise<Agendamento[]> {
+export async function buscarAgendamentosCliente(
+  telefoneOrId: string,
+  filtro?: 'proximos' | 'historico'
+): Promise<Agendamento[]> {
   try {
+    // Tenta buscar pela API (por telefone)
     const response = await apiGet<{ agendamentos: Agendamento[] }>(
       API_CONFIG.ENDPOINTS.CLIENTES_MEUS_AGENDAMENTOS,
-      { telefone }
+      { telefone: telefoneOrId }
     )
 
-    return response.agendamentos || []
+    let agendamentos = response.agendamentos || []
+
+    // Aplica filtro se fornecido
+    if (filtro === 'proximos') {
+      const hoje = new Date()
+      hoje.setHours(0, 0, 0, 0)
+      agendamentos = agendamentos.filter(ag => {
+        const dataAg = new Date(ag.data_agendamento)
+        return dataAg >= hoje && ['agendado', 'confirmado'].includes(ag.status)
+      })
+    } else if (filtro === 'historico') {
+      const hoje = new Date()
+      hoje.setHours(0, 0, 0, 0)
+      agendamentos = agendamentos.filter(ag => {
+        const dataAg = new Date(ag.data_agendamento)
+        return dataAg < hoje || ['concluido', 'cancelado'].includes(ag.status)
+      })
+    }
+
+    return agendamentos
   } catch (error) {
     console.error('Erro ao buscar agendamentos:', error)
     return []
