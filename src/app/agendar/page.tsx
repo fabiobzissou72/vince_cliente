@@ -234,7 +234,7 @@ export default function NovoAgendarPage() {
 
   return (
     <div className="min-h-screen bg-background pb-20">
-      <Header title="Novo Agendamento" showBack />
+      <Header title="Novo Agendamento" showUser={false} />
 
       <main className="max-w-4xl mx-auto px-4 py-6 space-y-6">
         {/* TABS */}
