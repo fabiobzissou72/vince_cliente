@@ -7,7 +7,7 @@ import Header from '@/components/Header'
 import BottomNav from '@/components/BottomNav'
 import { ArrowRight, Calendar as CalendarIcon, Clock, Scissors, User, MessageSquare, Loader2, CheckCircle } from 'lucide-react'
 import { buscarBarbeiros, buscarServicos, buscarHorariosDisponiveis, criarAgendamento } from '@/lib/agendamentos'
-import { Barbeiro, Servico } from '@/lib/supabase'
+import { Profissional, Servico } from '@/lib/supabase'
 import { formatarData, formatarDinheiro, formatarDuracao } from '@/lib/utils'
 import { toast } from 'sonner'
 import { format, addDays } from 'date-fns'
@@ -18,7 +18,7 @@ export default function AgendarPage() {
   const { cliente, loading: authLoading } = useAuth()
 
   const [etapa, setEtapa] = useState(1)
-  const [barbeiros, setBarbeiros] = useState<Barbeiro[]>([])
+  const [barbeiros, setBarbeiros] = useState<Profissional[]>([])
   const [servicos, setServicos] = useState<Servico[]>([])
   const [horarios, setHorarios] = useState<string[]>([])
 
