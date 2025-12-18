@@ -349,12 +349,25 @@ export default function AgendarPage() {
               <div>
                 <h3 className="font-bold text-lg mb-3">Escolher Profissional (Opcional)</h3>
                 <div className="grid grid-cols-2 gap-3">
-                  <button onClick={() => setBarbeiroSelecionado('')} className={`card text-left ${!barbeiroSelecionado ? 'border-vinci-primary bg-vinci-primary/5' : ''}`}>
-                    <p className="font-medium">Qualquer Profissional</p>
+                  <button
+                    onClick={() => setBarbeiroSelecionado('')}
+                    className={`p-4 rounded-lg border-2 transition-all ${!barbeiroSelecionado ? 'border-blue-600 bg-blue-50 dark:bg-blue-900/20 shadow-lg' : 'border-gray-300 bg-white dark:bg-gray-800 hover:border-blue-400'}`}
+                  >
+                    <p className={`font-bold ${!barbeiroSelecionado ? 'text-blue-600' : 'text-gray-700 dark:text-gray-300'}`}>
+                      {!barbeiroSelecionado && <CheckCircle className="w-5 h-5 inline mr-2" />}
+                      Qualquer Profissional
+                    </p>
                   </button>
                   {barbeiros.map((b) => (
-                    <button key={b.id} onClick={() => setBarbeiroSelecionado(b.nome)} className={`card text-left ${barbeiroSelecionado === b.nome ? 'border-vinci-primary bg-vinci-primary/5' : ''}`}>
-                      <p className="font-medium">{b.nome}</p>
+                    <button
+                      key={b.id}
+                      onClick={() => setBarbeiroSelecionado(b.nome)}
+                      className={`p-4 rounded-lg border-2 transition-all ${barbeiroSelecionado === b.nome ? 'border-blue-600 bg-blue-50 dark:bg-blue-900/20 shadow-lg' : 'border-gray-300 bg-white dark:bg-gray-800 hover:border-blue-400'}`}
+                    >
+                      <p className={`font-bold ${barbeiroSelecionado === b.nome ? 'text-blue-600' : 'text-gray-700 dark:text-gray-300'}`}>
+                        {barbeiroSelecionado === b.nome && <CheckCircle className="w-5 h-5 inline mr-2" />}
+                        {b.nome}
+                      </p>
                     </button>
                   ))}
                 </div>
@@ -368,11 +381,25 @@ export default function AgendarPage() {
                 {Array.from({ length: 14 }).map((_, i) => {
                   const dia = addDays(new Date(), i)
                   const dataStr = format(dia, 'yyyy-MM-dd')
+                  const selecionado = dataSelecionada === dataStr
                   return (
-                    <button key={i} onClick={() => setDataSelecionada(dataStr)} className={`flex-shrink-0 card text-center w-24 ${dataSelecionada === dataStr ? 'border-vinci-primary bg-vinci-primary/5' : ''}`}>
-                      <p className="text-sm text-muted-foreground">{format(dia, 'EEE', { locale: ptBR })}</p>
-                      <p className="text-2xl font-bold my-1">{format(dia, 'dd')}</p>
-                      <p className="text-xs text-muted-foreground">{format(dia, 'MMM', { locale: ptBR })}</p>
+                    <button
+                      key={i}
+                      onClick={() => setDataSelecionada(dataStr)}
+                      className={`flex-shrink-0 p-4 rounded-lg text-center w-24 border-2 transition-all ${selecionado ? 'border-blue-600 bg-blue-50 dark:bg-blue-900/20 shadow-lg scale-110' : 'border-gray-300 bg-white dark:bg-gray-800 hover:border-blue-400'}`}
+                    >
+                      <p className={`text-sm font-medium ${selecionado ? 'text-blue-600' : 'text-gray-500'}`}>
+                        {format(dia, 'EEE', { locale: ptBR })}
+                      </p>
+                      <p className={`text-3xl font-bold my-2 ${selecionado ? 'text-blue-600' : 'text-gray-900 dark:text-white'}`}>
+                        {format(dia, 'dd')}
+                      </p>
+                      <p className={`text-xs font-medium ${selecionado ? 'text-blue-600' : 'text-gray-500'}`}>
+                        {format(dia, 'MMM', { locale: ptBR })}
+                      </p>
+                      {selecionado && (
+                        <CheckCircle className="w-5 h-5 mx-auto mt-2 text-blue-600" />
+                      )}
                     </button>
                   )
                 })}
@@ -391,11 +418,21 @@ export default function AgendarPage() {
                   <p className="text-center text-muted-foreground py-8">Nenhum horário disponível</p>
                 ) : (
                   <div className="grid grid-cols-3 gap-3">
-                    {horarios.map((h) => (
-                      <button key={h} onClick={() => setHorarioSelecionado(h)} className={`card text-center font-medium ${horarioSelecionado === h ? 'border-vinci-primary bg-vinci-primary text-white' : ''}`}>
-                        {h}
-                      </button>
-                    ))}
+                    {horarios.map((h) => {
+                      const selecionado = horarioSelecionado === h
+                      return (
+                        <button
+                          key={h}
+                          onClick={() => setHorarioSelecionado(h)}
+                          className={`p-4 rounded-lg border-2 transition-all ${selecionado ? 'border-blue-600 bg-blue-600 text-white shadow-lg scale-105' : 'border-gray-300 bg-white dark:bg-gray-800 text-gray-900 dark:text-white hover:border-blue-400'}`}
+                        >
+                          <span className="text-lg font-bold">{h}</span>
+                          {selecionado && (
+                            <CheckCircle className="w-5 h-5 inline ml-2" />
+                          )}
+                        </button>
+                      )
+                    })}
                   </div>
                 )}
               </div>
