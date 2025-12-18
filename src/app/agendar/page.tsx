@@ -350,8 +350,13 @@ export default function AgendarPage() {
                 <h3 className="font-bold text-lg mb-3">Escolher Profissional (Opcional)</h3>
                 <div className="grid grid-cols-2 gap-3">
                   <button
-                    onClick={() => setBarbeiroSelecionado('')}
-                    className={`p-4 rounded-lg border-2 transition-all ${!barbeiroSelecionado ? 'border-blue-600 bg-blue-50 dark:bg-blue-900/20 shadow-lg' : 'border-gray-300 bg-white dark:bg-gray-800 hover:border-blue-400'}`}
+                    onClick={(e) => {
+                      e.preventDefault()
+                      e.stopPropagation()
+                      console.log('Clicou em qualquer profissional')
+                      setBarbeiroSelecionado('')
+                    }}
+                    className={`p-4 rounded-lg border-2 transition-all cursor-pointer ${!barbeiroSelecionado ? 'border-blue-600 bg-blue-50 dark:bg-blue-900/20 shadow-lg' : 'border-gray-300 bg-white dark:bg-gray-800 hover:border-blue-400'}`}
                   >
                     <p className={`font-bold ${!barbeiroSelecionado ? 'text-blue-600' : 'text-gray-700 dark:text-gray-300'}`}>
                       {!barbeiroSelecionado && <CheckCircle className="w-5 h-5 inline mr-2" />}
@@ -361,8 +366,13 @@ export default function AgendarPage() {
                   {barbeiros.map((b) => (
                     <button
                       key={b.id}
-                      onClick={() => setBarbeiroSelecionado(b.nome)}
-                      className={`p-4 rounded-lg border-2 transition-all ${barbeiroSelecionado === b.nome ? 'border-blue-600 bg-blue-50 dark:bg-blue-900/20 shadow-lg' : 'border-gray-300 bg-white dark:bg-gray-800 hover:border-blue-400'}`}
+                      onClick={(e) => {
+                        e.preventDefault()
+                        e.stopPropagation()
+                        console.log('Clicou em barbeiro:', b.nome)
+                        setBarbeiroSelecionado(b.nome)
+                      }}
+                      className={`p-4 rounded-lg border-2 transition-all cursor-pointer ${barbeiroSelecionado === b.nome ? 'border-blue-600 bg-blue-50 dark:bg-blue-900/20 shadow-lg' : 'border-gray-300 bg-white dark:bg-gray-800 hover:border-blue-400'}`}
                     >
                       <p className={`font-bold ${barbeiroSelecionado === b.nome ? 'text-blue-600' : 'text-gray-700 dark:text-gray-300'}`}>
                         {barbeiroSelecionado === b.nome && <CheckCircle className="w-5 h-5 inline mr-2" />}
@@ -385,8 +395,13 @@ export default function AgendarPage() {
                   return (
                     <button
                       key={i}
-                      onClick={() => setDataSelecionada(dataStr)}
-                      className={`flex-shrink-0 p-4 rounded-lg text-center w-24 border-2 transition-all ${selecionado ? 'border-blue-600 bg-blue-50 dark:bg-blue-900/20 shadow-lg scale-110' : 'border-gray-300 bg-white dark:bg-gray-800 hover:border-blue-400'}`}
+                      onClick={(e) => {
+                        e.preventDefault()
+                        e.stopPropagation()
+                        console.log('Clicou na data:', dataStr)
+                        setDataSelecionada(dataStr)
+                      }}
+                      className={`flex-shrink-0 p-4 rounded-lg text-center w-24 border-2 transition-all cursor-pointer ${selecionado ? 'border-blue-600 bg-blue-50 dark:bg-blue-900/20 shadow-lg scale-110' : 'border-gray-300 bg-white dark:bg-gray-800 hover:border-blue-400'}`}
                     >
                       <p className={`text-sm font-medium ${selecionado ? 'text-blue-600' : 'text-gray-500'}`}>
                         {format(dia, 'EEE', { locale: ptBR })}
@@ -423,8 +438,13 @@ export default function AgendarPage() {
                       return (
                         <button
                           key={h}
-                          onClick={() => setHorarioSelecionado(h)}
-                          className={`p-4 rounded-lg border-2 transition-all ${selecionado ? 'border-blue-600 bg-blue-600 text-white shadow-lg scale-105' : 'border-gray-300 bg-white dark:bg-gray-800 text-gray-900 dark:text-white hover:border-blue-400'}`}
+                          onClick={(e) => {
+                            e.preventDefault()
+                            e.stopPropagation()
+                            console.log('Clicou no horário:', h)
+                            setHorarioSelecionado(h)
+                          }}
+                          className={`p-4 rounded-lg border-2 transition-all cursor-pointer ${selecionado ? 'border-blue-600 bg-blue-600 text-white shadow-lg scale-105' : 'border-gray-300 bg-white dark:bg-gray-800 text-gray-900 dark:text-white hover:border-blue-400'}`}
                         >
                           <span className="text-lg font-bold">{h}</span>
                           {selecionado && (
