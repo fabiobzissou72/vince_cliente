@@ -3,8 +3,9 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
+import Image from 'next/image'
 import { useAuth } from '@/contexts/AuthContext'
-import { Scissors, Phone, Lock, Eye, EyeOff, Loader2, MessageSquare, CheckCircle } from 'lucide-react'
+import { Phone, Lock, Eye, EyeOff, Loader2, MessageSquare } from 'lucide-react'
 import { formatarTelefone, verificarCliente, enviarSenhaTemporaria, loginComSenhaTemporaria } from '@/lib/auth'
 import { toast } from 'sonner'
 
@@ -102,8 +103,15 @@ export default function LoginPage() {
     <div className="min-h-screen flex flex-col bg-gradient-to-br from-vinci-dark via-vinci-primary to-vinci-secondary">
       {/* Header */}
       <div className="flex-shrink-0 pt-12 pb-8 text-center">
-        <div className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-white/10 backdrop-blur-sm mb-4">
-          <Scissors className="w-10 h-10 text-white" />
+        <div className="flex justify-center mb-4">
+          <Image
+            src="/logo.png"
+            alt="Vince Barbearia"
+            width={120}
+            height={120}
+            priority
+            className="object-contain"
+          />
         </div>
         <h1 className="text-3xl font-bold text-white mb-2">Vince Barbearia</h1>
         <p className="text-vinci-accent">Bem-vindo de volta!</p>

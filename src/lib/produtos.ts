@@ -16,11 +16,11 @@ export interface Produto {
  */
 export async function buscarProdutos(): Promise<Produto[]> {
   try {
-    const response = await apiGet<{ produtos: Produto[] }>(
+    const response = await apiGet<Produto[]>(
       API_CONFIG.ENDPOINTS.PRODUTOS_LISTAR,
       { ativo: 'true' }
     )
-    return response.produtos || []
+    return Array.isArray(response) ? response : []
   } catch (error) {
     console.error('Erro ao buscar produtos:', error)
     return []

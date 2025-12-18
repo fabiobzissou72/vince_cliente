@@ -6,36 +6,35 @@ const withPWA = require('next-pwa')({
   buildExcludes: [/middleware-manifest\.json$/],
   runtimeCaching: [
     {
+      urlPattern: /^https:\/\/.+\.(png|jpg|jpeg|webp|svg|gif|ico)$/,
+      handler: 'CacheFirst',
+      options: {
+        cacheName: 'images',
+        expiration: {
+          maxEntries: 60,
+          maxAgeSeconds: 30 * 24 * 60 * 60
+        }
+      }
+    },
+    {
+      urlPattern: /^https:\/\/vincibarbearia\.vercel\.app\/api\/.*/,
+      handler: 'NetworkFirst',
+      options: {
+        cacheName: 'api-cache',
+        expiration: {
+          maxEntries: 50,
+          maxAgeSeconds: 5 * 60
+        }
+      }
+    },
+    {
       urlPattern: /^https:\/\/fonts\.(?:gstatic|googleapis)\.com\/.*/i,
       handler: 'CacheFirst',
       options: {
         cacheName: 'google-fonts',
         expiration: {
           maxEntries: 4,
-          maxAgeSeconds: 365 * 24 * 60 * 60 // 1 year
-        }
-      }
-    },
-    {
-      urlPattern: /^https:\/\/nypuvicehlmllhbudghf\.supabase\.co\/.*/i,
-      handler: 'NetworkFirst',
-      options: {
-        cacheName: 'supabase-api',
-        expiration: {
-          maxEntries: 32,
-          maxAgeSeconds: 24 * 60 * 60 // 24 hours
-        },
-        networkTimeoutSeconds: 10
-      }
-    },
-    {
-      urlPattern: /\.(?:jpg|jpeg|gif|png|svg|ico|webp)$/i,
-      handler: 'CacheFirst',
-      options: {
-        cacheName: 'static-image-assets',
-        expiration: {
-          maxEntries: 64,
-          maxAgeSeconds: 24 * 60 * 60 // 24 hours
+          maxAgeSeconds: 365 * 24 * 60 * 60
         }
       }
     },
@@ -46,20 +45,8 @@ const withPWA = require('next-pwa')({
         cacheName: 'static-resources',
         expiration: {
           maxEntries: 32,
-          maxAgeSeconds: 24 * 60 * 60 // 24 hours
+          maxAgeSeconds: 24 * 60 * 60
         }
-      }
-    },
-    {
-      urlPattern: /^https?.*/,
-      handler: 'NetworkFirst',
-      options: {
-        cacheName: 'others',
-        expiration: {
-          maxEntries: 32,
-          maxAgeSeconds: 24 * 60 * 60 // 24 hours
-        },
-        networkTimeoutSeconds: 10
       }
     }
   ]
@@ -69,7 +56,7 @@ const withPWA = require('next-pwa')({
 const nextConfig = {
   reactStrictMode: true,
   images: {
-    domains: ['nypuvicehlmllhbudghf.supabase.co']
+    domains: ['vincibarbearia.vercel.app', 'nypuvicehlmllhbudghf.supabase.co']
   }
 }
 

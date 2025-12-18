@@ -18,11 +18,11 @@ export interface Plano {
  */
 export async function buscarPlanos(): Promise<Plano[]> {
   try {
-    const response = await apiGet<{ planos: Plano[] }>(
+    const response = await apiGet<Plano[]>(
       API_CONFIG.ENDPOINTS.PLANOS_LISTAR,
       { ativo: 'true' }
     )
-    return response.planos || []
+    return Array.isArray(response) ? response : []
   } catch (error) {
     console.error('Erro ao buscar planos:', error)
     return []
