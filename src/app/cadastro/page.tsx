@@ -137,7 +137,7 @@ export default function CadastroPage() {
                     placeholder="Seu nome completo"
                     value={dados.nome_completo}
                     onChange={(e) => setDados({ ...dados, nome_completo: e.target.value })}
-                    className="input-field pl-11"
+                    className="input-field pl-12"
                   />
                 </div>
               </div>
@@ -152,7 +152,7 @@ export default function CadastroPage() {
                     placeholder="(11) 98765-4321"
                     value={dados.telefone}
                     onChange={(e) => handleTelefoneChange(e.target.value)}
-                    className="input-field pl-11"
+                    className="input-field pl-12"
                   />
                 </div>
               </div>
@@ -167,7 +167,7 @@ export default function CadastroPage() {
                     placeholder="seu@email.com"
                     value={dados.email}
                     onChange={(e) => setDados({ ...dados, email: e.target.value })}
-                    className="input-field pl-11"
+                    className="input-field pl-12"
                   />
                 </div>
               </div>
@@ -182,7 +182,7 @@ export default function CadastroPage() {
                     placeholder="Mínimo 6 caracteres"
                     value={dados.senha}
                     onChange={(e) => setDados({ ...dados, senha: e.target.value })}
-                    className="input-field pl-11 pr-11"
+                    className="input-field pl-12 pr-11"
                   />
                   <button
                     type="button"
@@ -204,7 +204,7 @@ export default function CadastroPage() {
                     placeholder="Digite a senha novamente"
                     value={dados.confirmarSenha}
                     onChange={(e) => setDados({ ...dados, confirmarSenha: e.target.value })}
-                    className="input-field pl-11"
+                    className="input-field pl-12"
                   />
                 </div>
               </div>
@@ -235,7 +235,7 @@ export default function CadastroPage() {
                     type="date"
                     value={dados.data_nascimento}
                     onChange={(e) => setDados({ ...dados, data_nascimento: e.target.value })}
-                    className="input-field pl-11"
+                    className="input-field pl-12"
                   />
                 </div>
               </div>
@@ -250,7 +250,7 @@ export default function CadastroPage() {
                     placeholder="Sua profissão"
                     value={dados.profissao}
                     onChange={(e) => setDados({ ...dados, profissao: e.target.value })}
-                    className="input-field pl-11"
+                    className="input-field pl-12"
                   />
                 </div>
               </div>
@@ -263,7 +263,7 @@ export default function CadastroPage() {
                   <select
                     value={dados.estado_civil}
                     onChange={(e) => setDados({ ...dados, estado_civil: e.target.value })}
-                    className="input-field pl-11"
+                    className="input-field pl-12"
                   >
                     <option value="">Selecione</option>
                     <option value="solteiro">Solteiro(a)</option>
@@ -312,7 +312,7 @@ export default function CadastroPage() {
                   <select
                     value={dados.como_soube}
                     onChange={(e) => setDados({ ...dados, como_soube: e.target.value })}
-                    className="input-field pl-11"
+                    className="input-field pl-12"
                   >
                     <option value="">Selecione</option>
                     <option value="indicacao">Indicação de amigos</option>

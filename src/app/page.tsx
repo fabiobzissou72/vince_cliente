@@ -3,7 +3,8 @@
 import { useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { useAuth } from '@/contexts/AuthContext'
-import { Scissors, Loader2 } from 'lucide-react'
+import { Loader2 } from 'lucide-react'
+import Image from 'next/image'
 
 export default function HomePage() {
   const router = useRouter()
@@ -26,10 +27,10 @@ export default function HomePage() {
     <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-br from-vinci-dark via-vinci-primary to-vinci-secondary">
       <div className="text-center space-y-6 animate-fadeIn">
         <div className="relative">
-          <div className="absolute inset-0 animate-pulse">
-            <Scissors className="w-24 h-24 text-vinci-accent opacity-50 mx-auto" />
+          <div className="absolute inset-0 animate-pulse opacity-50">
+            <Image src="/logo.png" alt="Vinci Barbearia" width={120} height={120} className="mx-auto object-contain" />
           </div>
-          <Scissors className="w-24 h-24 text-white mx-auto relative z-10" />
+          <Image src="/logo.png" alt="Vinci Barbearia" width={120} height={120} className="mx-auto object-contain relative z-10" />
         </div>
 
         <div className="space-y-2">

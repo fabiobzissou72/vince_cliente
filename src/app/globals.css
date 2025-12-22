@@ -165,7 +165,7 @@
 
 /* Input fields estilizados */
 .input-field {
-  @apply w-full px-4 py-3 bg-background border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-vinci-primary focus:border-transparent transition-all duration-200;
+  @apply w-full py-3 bg-background border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-vinci-primary focus:border-transparent transition-all duration-200;
 }
 
 /* Status badges */

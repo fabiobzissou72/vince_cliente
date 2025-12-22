@@ -1,9 +1,10 @@
 'use client'
 
 import { useAuth } from '@/contexts/AuthContext'
-import { Scissors, Moon, Sun } from 'lucide-react'
+import { Moon, Sun } from 'lucide-react'
 import { useTheme } from 'next-themes'
 import { obterIniciais } from '@/lib/utils'
+import Image from 'next/image'
 
 interface HeaderProps {
   title?: string
@@ -19,9 +20,7 @@ export default function Header({ title, showUser = true }: HeaderProps) {
       <div className="max-w-2xl mx-auto">
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center space-x-3">
-            <div className="w-10 h-10 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center">
-              <Scissors className="w-6 h-6" />
-            </div>
+            <Image src="/logo.png" alt="Vinci Barbearia" width={64} height={64} className="object-contain" />
             <div>
               <h1 className="text-xl font-bold">Vinci Barbearia</h1>
             </div>

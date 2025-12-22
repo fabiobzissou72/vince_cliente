@@ -104,7 +104,7 @@ export default function DashboardPage() {
             <Calendar className="w-12 h-12 mx-auto mb-3 opacity-80" />
             <h3 className="text-lg font-bold mb-2">Nenhum agendamento</h3>
             <p className="text-white/80 mb-4">Que tal agendar um horário?</p>
-            <Link href="/agendar" className="btn-secondary inline-block bg-white text-vinci-primary border-white hover:bg-white/90">
+            <Link href="/agendar" className="inline-block px-6 py-3 bg-white text-vinci-primary font-semibold rounded-lg border-2 border-white hover:bg-white/90 transition-colors">
               Agendar agora
             </Link>
           </div>
@@ -116,18 +116,18 @@ export default function DashboardPage() {
           <div className="grid grid-cols-2 gap-4">
             <Link
               href="/agendar"
-              className="card hover:shadow-lg transition-all active:scale-95 text-center p-6"
+              className="card bg-white dark:bg-slate-800 hover:shadow-lg transition-all active:scale-95 text-center p-6 border border-vinci-primary/20"
             >
-              <Calendar className="w-10 h-10 mx-auto mb-3 text-vinci-primary" />
-              <p className="font-medium">Novo Agendamento</p>
+              <Calendar className="w-10 h-10 mx-auto mb-3 text-vinci-primary dark:text-vinci-accent" />
+              <p className="font-medium text-slate-900 dark:text-white">Novo Agendamento</p>
             </Link>
 
             <Link
               href="/agendamentos"
-              className="card hover:shadow-lg transition-all active:scale-95 text-center p-6"
+              className="card bg-white dark:bg-slate-800 hover:shadow-lg transition-all active:scale-95 text-center p-6 border border-vinci-primary/20"
             >
-              <Clock className="w-10 h-10 mx-auto mb-3 text-vinci-primary" />
-              <p className="font-medium">Meus Horários</p>
+              <Clock className="w-10 h-10 mx-auto mb-3 text-vinci-primary dark:text-vinci-accent" />
+              <p className="font-medium text-slate-900 dark:text-white">Meus Horários</p>
             </Link>
           </div>
         </div>
@@ -163,14 +163,35 @@ export default function DashboardPage() {
 
         {/* Informações úteis */}
         <div className="card bg-vinci-primary/5 border-vinci-primary/20 p-4">
-          <h3 className="font-bold mb-2 flex items-center">
-            <Clock className="w-5 h-5 mr-2 text-vinci-primary" />
+          <h3 className="font-bold mb-3 flex items-center">
+            <Clock className="w-5 h-5 mr-2 text-vinci-primary dark:text-vinci-accent" />
             Horário de Funcionamento
           </h3>
-          <div className="text-sm text-muted-foreground space-y-1">
+          <div className="text-sm text-muted-foreground space-y-1 mb-4">
             <p>Segunda a Sexta: 09:00 - 20:00</p>
             <p>Sábado: 09:00 - 18:00</p>
             <p>Domingo: Fechado</p>
+          </div>
+
+          <div className="mt-3 pt-3 border-t border-vinci-primary/20">
+            <h3 className="font-bold mb-2 flex items-center text-slate-900 dark:text-white">
+              <svg className="w-5 h-5 mr-2 text-vinci-primary dark:text-vinci-accent" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+              </svg>
+              Endereço
+            </h3>
+            <a
+              href="https://www.google.com/maps/dir/?api=1&destination=Rua+9+c/+Rua+t-53,+2323,+Setor+Marista,+Goiânia"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-sm text-vinci-primary dark:text-white hover:underline flex items-start"
+            >
+              <span>Rua 9 c/ Rua t-53, 2323, Setor Marista, Goiânia</span>
+              <svg className="w-4 h-4 ml-1 flex-shrink-0 mt-0.5 text-vinci-primary dark:text-vinci-accent" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+              </svg>
+            </a>
           </div>
         </div>
       </main>

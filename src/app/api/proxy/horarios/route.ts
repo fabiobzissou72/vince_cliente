@@ -1,8 +1,8 @@
 import { NextResponse } from 'next/server'
 import { NextRequest } from 'next/server'
 
-const API_BASE = 'https://vincibarbearia.vercel.app'
-const API_TOKEN = 'vinci_j7mNuInUyCKojb6HH79jOMHH8zwb03hBwSONDhodZbOtRMbGMchazIO1zW7Ea7uv'
+const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL || 'https://vincibarbearia.vercel.app'
+const API_TOKEN = process.env.NEXT_PUBLIC_API_TOKEN || 'vinci_j7mNuInUyCKojb6HH79jOMHH8zwb03hBwSONDhodZbOtRMbGMchazIO1zW7Ea7uv'
 
 export async function GET(request: NextRequest) {
   try {
@@ -11,20 +11,37 @@ export async function GET(request: NextRequest) {
     const barbeiro = searchParams.get('barbeiro')
     const servico_ids = searchParams.get('servico_ids')
 
+    if (!data || !servico_ids) {
+      return NextResponse.json({ error: 'Data e servico_ids são obrigatórios' }, { status: 400 })
+    }
+
     let url = `${API_BASE}/api/agendamentos/horarios-disponiveis?data=${data}`
     if (barbeiro) url += `&barbeiro=${barbeiro}`
     if (servico_ids) url += `&servico_ids=${servico_ids}`
+
+    console.log('🔍 Buscando horários:', url)
 
     const response = await fetch(url, {
       headers: {
         'Authorization': `Bearer ${API_TOKEN}`,
         'Content-Type': 'application/json'
-      }
+      },
+      cache: 'no-store',
+      next: { revalidate: 0 }
     })
 
     const responseData = await response.json()
-    return NextResponse.json(responseData)
+    console.log('📦 Horários retornados:', responseData)
+
+    return NextResponse.json(responseData, {
+      headers: {
+        'Cache-Control': 'no-store, no-cache, must-revalidate',
+        'Pragma': 'no-cache',
+        'Expires': '0'
+      }
+    })
   } catch (error) {
+    console.error('❌ Erro ao buscar horários:', error)
     return NextResponse.json({ error: 'Erro ao buscar horários' }, { status: 500 })
   }
 }

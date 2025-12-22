@@ -1,11 +1,19 @@
 import { NextResponse } from 'next/server'
+import { NextRequest } from 'next/server'
 
 const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL || 'https://vincibarbearia.vercel.app'
 const API_TOKEN = process.env.NEXT_PUBLIC_API_TOKEN || 'vinci_j7mNuInUyCKojb6HH79jOMHH8zwb03hBwSONDhodZbOtRMbGMchazIO1zW7Ea7uv'
 
-export async function GET() {
+export async function GET(request: NextRequest) {
   try {
-    const response = await fetch(`${API_BASE}/api/barbeiros/listar?ativo=true`, {
+    const searchParams = request.nextUrl.searchParams
+    const telefone = searchParams.get('telefone')
+
+    if (!telefone) {
+      return NextResponse.json({ error: 'Telefone é obrigatório' }, { status: 400 })
+    }
+
+    const response = await fetch(`${API_BASE}/api/clientes/meus-agendamentos?telefone=${telefone}`, {
       headers: {
         'Authorization': `Bearer ${API_TOKEN}`,
         'Content-Type': 'application/json'
@@ -24,7 +32,7 @@ export async function GET() {
       }
     })
   } catch (error) {
-    console.error('Erro ao buscar barbeiros:', error)
-    return NextResponse.json({ error: 'Erro ao buscar barbeiros' }, { status: 500 })
+    console.error('Erro ao buscar agendamentos:', error)
+    return NextResponse.json({ error: 'Erro ao buscar agendamentos' }, { status: 500 })
   }
 }

@@ -103,13 +103,40 @@ export async function buscarAgendamentosCliente(
   filtro?: 'proximos' | 'historico'
 ): Promise<Agendamento[]> {
   try {
-    // Tenta buscar pela API (por telefone)
-    const response = await apiGet<{ agendamentos: Agendamento[] }>(
-      API_CONFIG.ENDPOINTS.CLIENTES_MEUS_AGENDAMENTOS,
-      { telefone: telefoneOrId }
-    )
+    // Usa proxy local para evitar CORS
+    const response = await fetch(`/api/proxy/meus-agendamentos?telefone=${telefoneOrId}`, {
+      headers: { 'Content-Type': 'application/json' },
+      cache: 'no-store'
+    })
 
-    let agendamentos = response.agendamentos || []
+    if (!response.ok) {
+      throw new Error('Erro ao buscar agendamentos')
+    }
+
+    const data = await response.json() as any
+
+    // A API pode retornar diferentes formatos
+    let agendamentosRaw = data.agendamentos || data.agendamentos_futuros || []
+
+    // Mapeia para o formato esperado se necessário
+    let agendamentos = agendamentosRaw.map((ag: any) => {
+      // Se já está no formato correto (tem data_agendamento), retorna como está
+      if (ag.data_agendamento) {
+        return ag
+      }
+
+      // Caso contrário, mapeia do formato da API de produção
+      return {
+        id: ag.id,
+        data_agendamento: ag.data ? ag.data.split('/').reverse().join('-') : null, // Converte DD/MM/YYYY para YYYY-MM-DD
+        hora_inicio: ag.hora_inicio,
+        status: ag.status,
+        profissional: ag.barbeiro ? { nome: ag.barbeiro } : null,
+        servico: ag.servicos && ag.servicos[0] ? ag.servicos[0] : null,
+        servicos: ag.servicos || [],
+        observacoes: null
+      }
+    })
 
     // Aplica filtro se fornecido
     if (filtro === 'proximos') {
@@ -143,19 +170,23 @@ export async function cancelarAgendamento(
   motivo?: string
 ): Promise<{ success: boolean; error?: string }> {
   try {
-    const response = await apiDelete<{ success: boolean; message?: string }>(
-      API_CONFIG.ENDPOINTS.AGENDAMENTOS_CANCELAR,
-      {
+    // Usa proxy local para evitar CORS
+    const response = await fetch('/api/proxy/cancelar-agendamento', {
+      method: 'DELETE',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
         agendamento_id: agendamentoId,
         motivo: motivo || 'Cancelado pelo cliente',
         cancelado_por: 'cliente'
-      }
-    )
+      })
+    })
 
-    if (response.success) {
+    const data = await response.json()
+
+    if (data.success) {
       return { success: true }
     } else {
-      return { success: false, error: response.message || 'Erro ao cancelar' }
+      return { success: false, error: data.message || 'Erro ao cancelar' }
     }
   } catch (error: any) {
     console.error('Erro ao cancelar agendamento:', error)

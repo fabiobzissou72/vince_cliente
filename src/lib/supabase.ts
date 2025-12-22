@@ -76,7 +76,7 @@ export interface Agendamento {
   profissional?: Profissional
   profissionais?: Profissional
   servico?: Servico
-  servicos?: Servico
+  servicos?: Servico[]
 }
 
 export interface Plano {

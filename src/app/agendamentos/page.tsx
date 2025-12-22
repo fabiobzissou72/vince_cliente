@@ -148,7 +148,7 @@ export default function AgendamentosPage() {
 
                 <div className="space-y-3">
                   <div className="flex items-center space-x-3 text-sm">
-                    <Clock className="w-4 h-4 text-muted-foreground" />
+                    <Clock className="w-4 h-4 text-slate-600 dark:text-slate-300" />
                     <span className="font-medium">{agendamento.hora_inicio}</span>
                   </div>
 
@@ -159,12 +159,18 @@ export default function AgendamentosPage() {
                     </div>
                   )}
 
-                  {agendamento.servico && (
-                    <div className="flex items-center justify-between pt-3 border-t border-border">
-                      <span className="text-sm font-medium">{agendamento.servico.nome}</span>
-                      <span className="text-sm font-bold text-vinci-primary">
-                        {formatarDinheiro(agendamento.servico.preco)}
-                      </span>
+                  {/* Lista de serviços */}
+                  {agendamento.servicos && agendamento.servicos.length > 0 && (
+                    <div className="pt-3 border-t border-border space-y-2">
+                      <p className="text-xs font-semibold text-muted-foreground uppercase">Serviços</p>
+                      {agendamento.servicos.map((servico, idx) => (
+                        <div key={idx} className="flex items-center justify-between">
+                          <span className="text-sm font-medium">{servico.nome}</span>
+                          <span className="text-sm font-bold text-vinci-primary">
+                            {formatarDinheiro(servico.preco)}
+                          </span>
+                        </div>
+                      ))}
                     </div>
                   )}
 

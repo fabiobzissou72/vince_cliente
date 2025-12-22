@@ -113,8 +113,8 @@ export default function LoginPage() {
             className="object-contain"
           />
         </div>
-        <h1 className="text-3xl font-bold text-white mb-2">Vince Barbearia</h1>
-        <p className="text-vinci-accent">Bem-vindo de volta!</p>
+        <h1 className="text-3xl font-bold text-white mb-2">Vinci Barbearia</h1>
+        <p className="text-white">Bem-vindo de volta!</p>
       </div>
 
       {/* Form */}
@@ -139,7 +139,7 @@ export default function LoginPage() {
                   placeholder="(11) 98765-4321"
                   value={telefone}
                   onChange={handleTelefoneChange}
-                  className="input-field pl-11 relative z-0"
+                  className="input-field !pl-12 relative z-0"
                   disabled={loading}
                   autoFocus
                 />
@@ -166,7 +166,7 @@ export default function LoginPage() {
             <div className="text-center">
               <p className="text-sm text-muted-foreground">
                 Primeira vez aqui?{' '}
-                <Link href="/cadastro" className="text-vinci-primary font-medium hover:underline">
+                <Link href="/cadastro" className="text-white font-medium hover:underline">
                   Fazer cadastro
                 </Link>
               </p>
@@ -227,7 +227,7 @@ export default function LoginPage() {
                   placeholder={senhaTemporariaEnviada ? 'Digite os 6 dígitos' : 'Digite sua senha'}
                   value={senha}
                   onChange={(e) => setSenha(e.target.value)}
-                  className="input-field pl-11 pr-11 relative z-0"
+                  className="input-field !pl-12 !pr-12 relative z-0"
                   disabled={loading}
                   autoFocus
                 />
@@ -289,12 +289,30 @@ export default function LoginPage() {
             {/* Link Recuperar */}
             {!senhaTemporariaEnviada && (
               <div className="text-center">
-                <Link
-                  href="/recuperar-senha"
-                  className="text-sm text-vinci-primary hover:underline"
+                <button
+                  type="button"
+                  onClick={async () => {
+                    if (!telefone) {
+                      toast.error('Digite seu telefone primeiro')
+                      setEtapa('telefone')
+                      return
+                    }
+                    setLoading(true)
+                    const resultado = await enviarSenhaTemporaria(telefone)
+                    if (resultado.success) {
+                      setSenhaTemporariaGerada(resultado.senhaTemporaria || '')
+                      setSenhaTemporariaEnviada(true)
+                      toast.success('Nova senha enviada para seu WhatsApp!')
+                    } else {
+                      toast.error(resultado.error || 'Erro ao enviar senha')
+                    }
+                    setLoading(false)
+                  }}
+                  disabled={loading}
+                  className="text-sm text-white hover:underline"
                 >
                   Esqueci minha senha
-                </Link>
+                </button>
               </div>
             )}
           </form>

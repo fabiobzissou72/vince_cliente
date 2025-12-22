@@ -266,8 +266,7 @@ export async function verificarCliente(telefone: string): Promise<{
 
 /**
  * Gera e envia senha temporária via WhatsApp
- * Para clientes que existem mas não têm senha
- * SIMPLIFICADO: Salva direto como senha normal (sem colunas extras)
+ * Chama API dedicada do sistema principal
  */
 export async function enviarSenhaTemporaria(telefone: string): Promise<{
   success: boolean
@@ -277,47 +276,38 @@ export async function enviarSenhaTemporaria(telefone: string): Promise<{
   try {
     const telefoneLimpo = telefone.replace(/\D/g, '')
 
-    // Busca cliente
-    const { data: cliente, error } = await supabase
-      .from('clientes')
-      .select('*')
-      .eq('telefone', telefoneLimpo)
-      .single()
+    // Chama API dedicada para envio de senha
+    const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || 'https://vincibarbearia.vercel.app'
+    const apiToken = process.env.NEXT_PUBLIC_API_TOKEN || 'vinci_j7mNuInUyCKojb6HH79jOMHH8zwb03hBwSONDhodZbOtRMbGMchazIO1zW7Ea7uv'
 
-    if (error || !cliente) {
-      return { success: false, error: 'Cliente não encontrado' }
+    const response = await fetch(`${apiBaseUrl}/api/clientes/enviar-senha-temporaria`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${apiToken}`
+      },
+      body: JSON.stringify({ telefone: telefoneLimpo })
+    })
+
+    const data = await response.json()
+
+    if (!response.ok || !data.success) {
+      return {
+        success: false,
+        error: data.error || 'Erro ao gerar senha temporária'
+      }
     }
-
-    // Gera senha temporária de 6 dígitos
-    const senhaTemporaria = Math.floor(100000 + Math.random() * 900000).toString()
-    const senhaHash = await bcrypt.hash(senhaTemporaria, 10)
-
-    // Salva como senha normal (sem expiração, sem flags)
-    const { error: erroUpdate } = await supabase
-      .from('clientes')
-      .update({ senha: senhaHash })
-      .eq('id', cliente.id)
-
-    if (erroUpdate) {
-      console.error('Erro ao salvar senha:', erroUpdate)
-      return { success: false, error: 'Erro ao gerar senha temporária' }
-    }
-
-    // TODO: Integrar com API de WhatsApp para enviar a senha
-    // Por enquanto, retorna a senha (APENAS PARA DESENVOLVIMENTO)
-    console.log(`Senha temporária para ${cliente.nome_completo}: ${senhaTemporaria}`)
-
-    // Em produção, você deve integrar com Evolution API, Twilio, etc.
-    // Exemplo de mensagem:
-    // const mensagem = `Olá ${cliente.nome_completo}! Sua senha para acessar a Vince Barbearia é: ${senhaTemporaria}`
 
     return {
       success: true,
-      senhaTemporaria // Remover em produção, apenas para dev
+      senhaTemporaria: data.senhaTemporaria
     }
   } catch (error) {
     console.error('Erro ao enviar senha temporária:', error)
-    return { success: false, error: 'Erro ao enviar senha temporária' }
+    return {
+      success: false,
+      error: 'Erro ao conectar com o servidor. Tente novamente.'
+    }
   }
 }
 

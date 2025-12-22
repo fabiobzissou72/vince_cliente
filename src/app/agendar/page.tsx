@@ -65,7 +65,14 @@ export default function AgendarPage() {
 
   const [etapa, setEtapa] = useState<'selecao' | 'agendamento'>('selecao')
   const [tabAtiva, setTabAtiva] = useState<TabType>('servicos')
-  const [carrinho, setCarrinho] = useState<CarrinhoItem[]>([])
+  const [carrinho, setCarrinho] = useState<CarrinhoItem[]>(() => {
+    // Recupera carrinho do localStorage
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('carrinho')
+      return saved ? JSON.parse(saved) : []
+    }
+    return []
+  })
 
   const [servicos, setServicos] = useState<Servico[]>([])
   const [produtos, setProdutos] = useState<Produto[]>([])
@@ -76,6 +83,7 @@ export default function AgendarPage() {
   const [barbeiroSelecionado, setBarbeiroSelecionado] = useState<string>('')
   const [dataSelecionada, setDataSelecionada] = useState('')
   const [horarioSelecionado, setHorarioSelecionado] = useState('')
+  const [dataBase, setDataBase] = useState(new Date())
 
   const [loading, setLoading] = useState(true)
   const [loadingHorarios, setLoadingHorarios] = useState(false)
@@ -121,10 +129,16 @@ export default function AgendarPage() {
         barbeirosRes.json()
       ])
 
+      console.log('📦 Dados recebidos - Barbeiros:', barbeirosData)
+
       setServicos(Array.isArray(servicosData) ? servicosData.filter((s: Servico) => s.ativo) : [])
       setProdutos(produtosData.produtos || [])
       setPlanos(planosData.planos || [])
-      setBarbeiros(barbeirosData.barbeiros || [])
+
+      // Filtra apenas barbeiros ativos
+      const barbeirosAtivos = (barbeirosData.barbeiros || []).filter((b: Barbeiro) => b.ativo)
+      console.log('✅ Barbeiros ativos:', barbeirosAtivos)
+      setBarbeiros(barbeirosAtivos)
       setDataSelecionada(format(new Date(), 'yyyy-MM-dd'))
     } catch (err: any) {
       setError(err.message)
@@ -147,7 +161,13 @@ export default function AgendarPage() {
         return
       }
 
-      const url = `${API_PROXY}/horarios?data=${dataSelecionada}${barbeiroSelecionado ? `&barbeiro=${barbeiroSelecionado}` : ''}&servico_ids=${servicoIds}`
+      // Só envia barbeiro se for um ID válido (não vazio e não "Qualquer")
+      // A API espera o NOME do barbeiro, não o ID
+      const barbeiroNome = barbeiroSelecionado && barbeiroSelecionado !== 'Qualquer'
+        ? getNomeBarbeiro(barbeiroSelecionado)
+        : ''
+      const barbeiroParam = barbeiroNome ? `&barbeiro=${encodeURIComponent(barbeiroNome)}` : ''
+      const url = `${API_PROXY}/horarios?data=${dataSelecionada}${barbeiroParam}&servico_ids=${servicoIds}`
       console.log('📡 URL da API:', url)
 
       const response = await fetch(url)
@@ -155,16 +175,23 @@ export default function AgendarPage() {
 
       const data = await response.json()
       console.log('📦 Dados retornados:', data)
-      console.log('📦 Tipo de data:', typeof data, 'É array?', Array.isArray(data))
 
       // Trata diferentes formatos de resposta
       let horariosArray = []
+
       if (Array.isArray(data)) {
         horariosArray = data
       } else if (data.horarios && Array.isArray(data.horarios)) {
         horariosArray = data.horarios
+      } else if (data.data && Array.isArray(data.data.horarios)) {
+        // API retorna: { success: true, data: { horarios: [...] } }
+        horariosArray = data.data.horarios
+      } else if (data.data && Array.isArray(data.data)) {
+        // API retorna: { success: true, data: [...] }
+        horariosArray = data.data
       } else if (typeof data === 'object') {
-        console.log('⚠️ Resposta é objeto, não array:', Object.keys(data))
+        console.log('⚠️ Formato de resposta não reconhecido:', Object.keys(data))
+        console.log('⚠️ Dados completos:', data)
       }
 
       setHorarios(horariosArray)
@@ -179,11 +206,15 @@ export default function AgendarPage() {
 
   function toggleCarrinho(item: CarrinhoItem) {
     const existe = carrinho.find(c => c.id === item.id && c.tipo === item.tipo)
+    let novoCarrinho
     if (existe) {
-      setCarrinho(carrinho.filter(c => !(c.id === item.id && c.tipo === item.tipo)))
+      novoCarrinho = carrinho.filter(c => !(c.id === item.id && c.tipo === item.tipo))
     } else {
-      setCarrinho([...carrinho, item])
+      novoCarrinho = [...carrinho, item]
     }
+    setCarrinho(novoCarrinho)
+    // Salva no localStorage
+    localStorage.setItem('carrinho', JSON.stringify(novoCarrinho))
   }
 
   function itemNoCarrinho(id: string, tipo: string) {
@@ -192,6 +223,12 @@ export default function AgendarPage() {
 
   function calcularTotal() {
     return carrinho.reduce((total, item) => total + item.preco, 0)
+  }
+
+  function getNomeBarbeiro(id: string): string {
+    if (id === 'Qualquer') return 'Qualquer Profissional'
+    const barbeiro = barbeiros.find(b => b.id === id)
+    return barbeiro?.nome || 'Barbeiro'
   }
 
   function avancarParaAgendamento() {
@@ -223,13 +260,17 @@ export default function AgendarPage() {
           telefone: cliente.telefone,
           data: `${dia}-${mes}-${ano}`,
           hora: horarioSelecionado,
-          servico_ids: servicoIds
+          servico_ids: servicoIds,
+          barbeiro_id: barbeiroSelecionado && barbeiroSelecionado !== 'Qualquer' ? barbeiroSelecionado : undefined
         })
       })
 
       const data = await response.json()
 
       if (data.success) {
+        // Limpar carrinho após sucesso
+        setCarrinho([])
+        localStorage.removeItem('carrinho')
         toast.success('Agendamento criado com sucesso!')
         router.push('/agendamentos')
       } else {
@@ -264,24 +305,24 @@ export default function AgendarPage() {
             <div className="flex space-x-2 border-b border-border">
               <button
                 onClick={() => setTabAtiva('servicos')}
-                className={`px-6 py-3 font-medium transition-colors relative ${tabAtiva === 'servicos' ? 'text-vinci-primary' : 'text-muted-foreground'}`}
+                className={`px-6 py-3 font-medium transition-colors relative ${tabAtiva === 'servicos' ? 'text-vinci-primary dark:text-vinci-accent' : 'text-muted-foreground'}`}
               >
                 SERVIÇOS ({servicos.length})
-                {tabAtiva === 'servicos' && <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-vinci-primary" />}
+                {tabAtiva === 'servicos' && <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-vinci-primary dark:bg-vinci-accent" />}
               </button>
               <button
                 onClick={() => setTabAtiva('produtos')}
-                className={`px-6 py-3 font-medium transition-colors relative ${tabAtiva === 'produtos' ? 'text-vinci-primary' : 'text-muted-foreground'}`}
+                className={`px-6 py-3 font-medium transition-colors relative ${tabAtiva === 'produtos' ? 'text-vinci-primary dark:text-vinci-accent' : 'text-muted-foreground'}`}
               >
                 PRODUTOS ({produtos.length})
-                {tabAtiva === 'produtos' && <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-vinci-primary" />}
+                {tabAtiva === 'produtos' && <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-vinci-primary dark:bg-vinci-accent" />}
               </button>
               <button
                 onClick={() => setTabAtiva('planos')}
-                className={`px-6 py-3 font-medium transition-colors relative ${tabAtiva === 'planos' ? 'text-vinci-primary' : 'text-muted-foreground'}`}
+                className={`px-6 py-3 font-medium transition-colors relative ${tabAtiva === 'planos' ? 'text-vinci-primary dark:text-vinci-accent' : 'text-muted-foreground'}`}
               >
                 PACOTES ({planos.length})
-                {tabAtiva === 'planos' && <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-vinci-primary" />}
+                {tabAtiva === 'planos' && <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-vinci-primary dark:bg-vinci-accent" />}
               </button>
             </div>
 
@@ -298,7 +339,7 @@ export default function AgendarPage() {
                         <span className="flex items-center text-sm text-muted-foreground"><Clock className="w-4 h-4 mr-1" />{s.duracao_minutos} min</span>
                       </div>
                     </div>
-                    <button className={`btn-secondary px-6 ${itemNoCarrinho(s.id, 'servico') ? 'bg-vinci-primary text-white' : ''}`}>
+                    <button className={`px-6 py-2 rounded-lg font-semibold transition-colors ${itemNoCarrinho(s.id, 'servico') ? 'bg-vinci-primary text-white' : 'bg-white dark:bg-slate-700 text-slate-900 dark:text-white border-2 border-vinci-primary/20'}`}>
                       {itemNoCarrinho(s.id, 'servico') ? 'Selecionado' : 'Selecionar'}
                     </button>
                   </div>
@@ -313,7 +354,7 @@ export default function AgendarPage() {
                       {p.descricao && <p className="text-sm text-muted-foreground mt-1">{p.descricao}</p>}
                       <span className="text-lg font-bold text-vinci-gold mt-2 inline-block">R$ {p.preco.toFixed(2)}</span>
                     </div>
-                    <button className={`btn-secondary px-6 ${itemNoCarrinho(p.id, 'produto') ? 'bg-vinci-primary text-white' : ''}`}>
+                    <button className={`px-6 py-2 rounded-lg font-semibold transition-colors ${itemNoCarrinho(p.id, 'produto') ? 'bg-vinci-primary text-white' : 'bg-white dark:bg-slate-700 text-slate-900 dark:text-white border-2 border-vinci-primary/20'}`}>
                       {itemNoCarrinho(p.id, 'produto') ? 'Selecionado' : 'Adicionar'}
                     </button>
                   </div>
@@ -326,7 +367,7 @@ export default function AgendarPage() {
                   <p className="text-sm text-muted-foreground mt-1">{p.itens_inclusos}</p>
                   <div className="flex justify-between items-center mt-3">
                     <span className="text-2xl font-bold text-blue-600">R$ {p.valor_total.toFixed(2)}</span>
-                    <button className={`btn-secondary px-6 ${itemNoCarrinho(p.id, 'plano') ? 'bg-vinci-primary text-white' : ''}`}>
+                    <button className={`px-6 py-2 rounded-lg font-semibold transition-colors ${itemNoCarrinho(p.id, 'plano') ? 'bg-vinci-primary text-white' : 'bg-white dark:bg-slate-700 text-slate-900 dark:text-white border-2 border-vinci-primary/20'}`}>
                       {itemNoCarrinho(p.id, 'plano') ? 'Selecionado' : 'Assinar'}
                     </button>
                   </div>
@@ -369,87 +410,111 @@ export default function AgendarPage() {
               ← Voltar para seleção
             </button>
 
-            {/* BARBEIRO */}
-            {carrinho.some(i => i.tipo === 'servico') && (
-              <div>
-                <h3 className="font-bold text-lg mb-3">Escolher Profissional (Opcional)</h3>
-                <div className="grid grid-cols-2 gap-3">
+            {/* BARBEIRO - Exibir barbeiro selecionado */}
+            {carrinho.some(i => i.tipo === 'servico') && barbeiroSelecionado && (
+              <div className="bg-white dark:bg-gray-800 rounded-2xl p-4 shadow-sm">
+                <div className="flex items-center space-x-4">
+                  <div className="w-16 h-16 rounded-full bg-gray-300 dark:bg-gray-600 flex items-center justify-center overflow-hidden">
+                    <User className="w-8 h-8 text-gray-600 dark:text-gray-300" />
+                  </div>
+                  <div>
+                    <h3 className="text-xl font-bold">{getNomeBarbeiro(barbeiroSelecionado)}</h3>
+                    <p className="text-sm text-gray-500">Barbeiro profissional</p>
+                  </div>
                   <button
-                    onClick={(e) => {
-                      e.preventDefault()
-                      e.stopPropagation()
-                      console.log('Clicou em qualquer profissional')
-                      setBarbeiroSelecionado('')
-                    }}
-                    className={`p-4 rounded-lg border-2 transition-all cursor-pointer ${!barbeiroSelecionado ? 'border-blue-600 bg-blue-50 dark:bg-blue-900/20 shadow-lg' : 'border-gray-300 bg-white dark:bg-gray-800 hover:border-blue-400'}`}
+                    onClick={() => setBarbeiroSelecionado('')}
+                    className="ml-auto text-sm text-vinci-primary hover:underline"
                   >
-                    <p className={`font-bold ${!barbeiroSelecionado ? 'text-blue-600' : 'text-gray-700 dark:text-gray-300'}`}>
-                      {!barbeiroSelecionado && <CheckCircle className="w-5 h-5 inline mr-2" />}
-                      Qualquer Profissional
-                    </p>
+                    Trocar
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {/* Escolher Profissional */}
+            {carrinho.some(i => i.tipo === 'servico') && !barbeiroSelecionado && (
+              <div>
+                <h3 className="font-bold text-lg mb-3">Escolher Profissional</h3>
+                <div className="space-y-3">
+                  <button
+                    onClick={() => setBarbeiroSelecionado('Qualquer')}
+                    className="w-full p-4 rounded-xl border-2 border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-800 hover:border-vinci-primary dark:hover:border-vinci-accent transition-all text-left"
+                  >
+                    <p className="font-bold text-slate-900 dark:text-white">Qualquer Profissional</p>
+                    <p className="text-sm text-gray-500 dark:text-gray-400">Escolher automaticamente</p>
                   </button>
                   {barbeiros.map((b) => (
                     <button
                       key={b.id}
-                      onClick={(e) => {
-                        e.preventDefault()
-                        e.stopPropagation()
-                        console.log('Clicou em barbeiro:', b.nome)
-                        setBarbeiroSelecionado(b.nome)
-                      }}
-                      className={`p-4 rounded-lg border-2 transition-all cursor-pointer ${barbeiroSelecionado === b.nome ? 'border-blue-600 bg-blue-50 dark:bg-blue-900/20 shadow-lg' : 'border-gray-300 bg-white dark:bg-gray-800 hover:border-blue-400'}`}
+                      onClick={() => setBarbeiroSelecionado(b.id)}
+                      className="w-full p-4 rounded-xl border-2 border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-800 hover:border-vinci-primary dark:hover:border-vinci-accent transition-all flex items-center space-x-4"
                     >
-                      <p className={`font-bold ${barbeiroSelecionado === b.nome ? 'text-blue-600' : 'text-gray-700 dark:text-gray-300'}`}>
-                        {barbeiroSelecionado === b.nome && <CheckCircle className="w-5 h-5 inline mr-2" />}
-                        {b.nome}
-                      </p>
+                      <div className="w-12 h-12 rounded-full bg-gray-300 dark:bg-gray-600 flex items-center justify-center overflow-hidden flex-shrink-0">
+                        <User className="w-6 h-6 text-gray-600 dark:text-gray-300" />
+                      </div>
+                      <div className="text-left flex-1">
+                        <p className="font-bold text-slate-900 dark:text-white">{b.nome}</p>
+                        {b.especialidade && <p className="text-sm text-gray-500 dark:text-gray-400">{b.especialidade}</p>}
+                      </div>
+                      <span className="text-vinci-primary dark:text-vinci-accent font-medium">Ver mais</span>
                     </button>
                   ))}
                 </div>
               </div>
             )}
 
-            {/* DATA */}
-            <div>
-              <h3 className="font-bold text-lg mb-3">Escolher Data</h3>
-              <div className="flex overflow-x-auto space-x-3 pb-2">
-                {Array.from({ length: 14 }).map((_, i) => {
-                  const dia = addDays(new Date(), i)
+            {/* DATA - Calendário Horizontal */}
+            <div className="bg-white dark:bg-gray-800 rounded-2xl p-4 shadow-sm">
+              <div className="flex justify-between items-center mb-4">
+                <button
+                  onClick={() => setDataBase(addDays(dataBase, -7))}
+                  className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-full"
+                >
+                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                  </svg>
+                </button>
+                <h3 className="text-xl font-bold">{format(dataBase, 'MMMM \'de\' yyyy', { locale: ptBR })}</h3>
+                <button
+                  onClick={() => setDataBase(addDays(dataBase, 7))}
+                  className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-full"
+                >
+                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                  </svg>
+                </button>
+              </div>
+
+              <div className="grid grid-cols-7 gap-2">
+                {Array.from({ length: 7 }).map((_, i) => {
+                  const dia = addDays(dataBase, i)
                   const dataStr = format(dia, 'yyyy-MM-dd')
                   const selecionado = dataSelecionada === dataStr
                   return (
-                    <button
-                      key={i}
-                      onClick={(e) => {
-                        e.preventDefault()
-                        e.stopPropagation()
-                        console.log('Clicou na data:', dataStr)
-                        setDataSelecionada(dataStr)
-                      }}
-                      className={`flex-shrink-0 p-4 rounded-lg text-center w-24 border-2 transition-all cursor-pointer ${selecionado ? 'border-blue-600 bg-blue-50 dark:bg-blue-900/20 shadow-lg scale-110' : 'border-gray-300 bg-white dark:bg-gray-800 hover:border-blue-400'}`}
-                    >
-                      <p className={`text-sm font-medium ${selecionado ? 'text-blue-600' : 'text-gray-500'}`}>
+                    <div key={i} className="text-center">
+                      <p className="text-xs text-gray-500 dark:text-gray-400 mb-2">
                         {format(dia, 'EEE', { locale: ptBR })}
                       </p>
-                      <p className={`text-3xl font-bold my-2 ${selecionado ? 'text-blue-600' : 'text-gray-900 dark:text-white'}`}>
-                        {format(dia, 'dd')}
-                      </p>
-                      <p className={`text-xs font-medium ${selecionado ? 'text-blue-600' : 'text-gray-500'}`}>
-                        {format(dia, 'MMM', { locale: ptBR })}
-                      </p>
-                      {selecionado && (
-                        <CheckCircle className="w-5 h-5 mx-auto mt-2 text-blue-600" />
-                      )}
-                    </button>
+                      <button
+                        onClick={() => setDataSelecionada(dataStr)}
+                        className={`w-12 h-12 rounded-full flex items-center justify-center text-lg font-bold transition-all mx-auto ${
+                          selecionado
+                            ? 'bg-vinci-dark text-white'
+                            : 'hover:bg-gray-100 dark:hover:bg-gray-700'
+                        }`}
+                      >
+                        {format(dia, 'd')}
+                      </button>
+                    </div>
                   )
                 })}
               </div>
             </div>
 
-            {/* HORÁRIO */}
+            {/* HORÁRIOS DISPONÍVEIS */}
             {dataSelecionada && carrinho.some(i => i.tipo === 'servico') && (
               <div>
-                <h3 className="font-bold text-lg mb-3">Escolher Horário</h3>
+                <h2 className="text-2xl font-bold mb-6">Horários disponíveis</h2>
                 {loadingHorarios ? (
                   <div className="flex items-center justify-center py-8">
                     <Loader2 className="w-6 h-6 animate-spin text-vinci-primary" />
@@ -457,28 +522,100 @@ export default function AgendarPage() {
                 ) : horarios.length === 0 ? (
                   <p className="text-center text-muted-foreground py-8">Nenhum horário disponível</p>
                 ) : (
-                  <div className="grid grid-cols-3 gap-3">
-                    {horarios.map((h) => {
-                      const selecionado = horarioSelecionado === h
-                      return (
-                        <button
-                          key={h}
-                          onClick={(e) => {
-                            e.preventDefault()
-                            e.stopPropagation()
-                            console.log('Clicou no horário:', h)
-                            setHorarioSelecionado(h)
-                          }}
-                          className={`p-4 rounded-lg border-2 transition-all cursor-pointer ${selecionado ? 'border-blue-600 bg-blue-600 text-white shadow-lg scale-105' : 'border-gray-300 bg-white dark:bg-gray-800 text-gray-900 dark:text-white hover:border-blue-400'}`}
-                        >
-                          <span className="text-lg font-bold">{h}</span>
-                          {selecionado && (
-                            <CheckCircle className="w-5 h-5 inline ml-2" />
-                          )}
-                        </button>
+                  <>
+                    {/* Manhã */}
+                    {(() => {
+                      const manha = horarios.filter(h => {
+                        const hora = parseInt(h.split(':')[0])
+                        return hora >= 6 && hora < 12
+                      })
+                      return manha.length > 0 && (
+                        <div className="mb-8">
+                          <div className="flex items-center justify-between mb-4">
+                            <h3 className="text-xl font-bold text-slate-900 dark:text-white">Manhã</h3>
+                            <span className="text-sm text-gray-500 dark:text-gray-400">{manha.length} horários</span>
+                          </div>
+                          <div className="grid grid-cols-3 gap-3">
+                            {manha.map((h) => (
+                              <button
+                                key={h}
+                                onClick={() => setHorarioSelecionado(h)}
+                                className={`p-4 rounded-xl border-2 transition-all font-bold text-lg ${
+                                  horarioSelecionado === h
+                                    ? 'border-vinci-primary bg-vinci-primary text-white'
+                                    : 'border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-white hover:border-vinci-primary dark:hover:border-vinci-accent'
+                                }`}
+                              >
+                                {h}
+                              </button>
+                            ))}
+                          </div>
+                        </div>
                       )
-                    })}
-                  </div>
+                    })()}
+
+                    {/* Tarde */}
+                    {(() => {
+                      const tarde = horarios.filter(h => {
+                        const hora = parseInt(h.split(':')[0])
+                        return hora >= 12 && hora < 18
+                      })
+                      return tarde.length > 0 && (
+                        <div className="mb-8">
+                          <div className="flex items-center justify-between mb-4">
+                            <h3 className="text-xl font-bold text-slate-900 dark:text-white">Tarde</h3>
+                            <span className="text-sm text-gray-500 dark:text-gray-400">{tarde.length} horários</span>
+                          </div>
+                          <div className="grid grid-cols-3 gap-3">
+                            {tarde.map((h) => (
+                              <button
+                                key={h}
+                                onClick={() => setHorarioSelecionado(h)}
+                                className={`p-4 rounded-xl border-2 transition-all font-bold text-lg ${
+                                  horarioSelecionado === h
+                                    ? 'border-vinci-primary bg-vinci-primary text-white'
+                                    : 'border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-white hover:border-vinci-primary dark:hover:border-vinci-accent'
+                                }`}
+                              >
+                                {h}
+                              </button>
+                            ))}
+                          </div>
+                        </div>
+                      )
+                    })()}
+
+                    {/* Noite */}
+                    {(() => {
+                      const noite = horarios.filter(h => {
+                        const hora = parseInt(h.split(':')[0])
+                        return hora >= 18
+                      })
+                      return noite.length > 0 && (
+                        <div className="mb-8">
+                          <div className="flex items-center justify-between mb-4">
+                            <h3 className="text-xl font-bold text-slate-900 dark:text-white">Noite</h3>
+                            <span className="text-sm text-gray-500 dark:text-gray-400">{noite.length} horários</span>
+                          </div>
+                          <div className="grid grid-cols-3 gap-3">
+                            {noite.map((h) => (
+                              <button
+                                key={h}
+                                onClick={() => setHorarioSelecionado(h)}
+                                className={`p-4 rounded-xl border-2 transition-all font-bold text-lg ${
+                                  horarioSelecionado === h
+                                    ? 'border-vinci-primary bg-vinci-primary text-white'
+                                    : 'border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-white hover:border-vinci-primary dark:hover:border-vinci-accent'
+                                }`}
+                              >
+                                {h}
+                              </button>
+                            ))}
+                          </div>
+                        </div>
+                      )
+                    })()}
+                  </>
                 )}
               </div>
             )}

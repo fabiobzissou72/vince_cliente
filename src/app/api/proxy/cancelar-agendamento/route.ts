@@ -4,12 +4,12 @@ import { NextRequest } from 'next/server'
 const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL || 'https://vincibarbearia.vercel.app'
 const API_TOKEN = process.env.NEXT_PUBLIC_API_TOKEN || 'vinci_j7mNuInUyCKojb6HH79jOMHH8zwb03hBwSONDhodZbOtRMbGMchazIO1zW7Ea7uv'
 
-export async function POST(request: NextRequest) {
+export async function DELETE(request: NextRequest) {
   try {
     const body = await request.json()
 
-    const response = await fetch(`${API_BASE}/api/agendamentos/criar`, {
-      method: 'POST',
+    const response = await fetch(`${API_BASE}/api/agendamentos/cancelar`, {
+      method: 'DELETE',
       headers: {
         'Authorization': `Bearer ${API_TOKEN}`,
         'Content-Type': 'application/json'
@@ -20,6 +20,6 @@ export async function POST(request: NextRequest) {
     const data = await response.json()
     return NextResponse.json(data)
   } catch (error) {
-    return NextResponse.json({ error: 'Erro ao criar agendamento' }, { status: 500 })
+    return NextResponse.json({ error: 'Erro ao cancelar agendamento' }, { status: 500 })
   }
 }

@@ -101,13 +101,13 @@ export default function RecuperarSenhaPage() {
           <div>
             <label className="block text-sm font-medium mb-2">Email cadastrado</label>
             <div className="relative">
-              <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
+              <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground pointer-events-none" />
               <input
                 type="email"
                 placeholder="seu@email.com"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="input-field pl-11"
+                className="w-full pl-12 pr-4 py-3 bg-background border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-vinci-primary focus:border-transparent transition-all duration-200"
                 disabled={loading}
                 autoFocus
               />

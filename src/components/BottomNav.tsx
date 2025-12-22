@@ -27,8 +27,8 @@ export default function BottomNav() {
               href={link.href}
               className={`flex flex-col items-center justify-center flex-1 h-full transition-colors ${
                 isActive
-                  ? 'text-vinci-primary'
-                  : 'text-muted-foreground hover:text-foreground'
+                  ? 'text-vinci-primary dark:text-vinci-accent'
+                  : 'text-slate-600 dark:text-slate-300 hover:text-vinci-primary dark:hover:text-vinci-accent'
               }`}
             >
               <Icon className={`w-6 h-6 mb-1 ${isActive ? 'stroke-[2.5]' : 'stroke-2'}`} />
