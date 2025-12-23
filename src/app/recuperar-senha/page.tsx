@@ -3,35 +3,41 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
-import { ArrowLeft, Mail, Loader2, CheckCircle } from 'lucide-react'
-import { recuperarSenha } from '@/lib/auth'
-import { validarEmail } from '@/lib/utils'
+import { ArrowLeft, Phone, Loader2, CheckCircle } from 'lucide-react'
+import { enviarSenhaTemporaria, formatarTelefone } from '@/lib/auth'
 import { toast } from 'sonner'
 
 export default function RecuperarSenhaPage() {
   const router = useRouter()
-  const [email, setEmail] = useState('')
+  const [telefone, setTelefone] = useState('')
   const [loading, setLoading] = useState(false)
   const [enviado, setEnviado] = useState(false)
+
+  const handleTelefoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const valor = e.target.value.replace(/\D/g, '')
+    if (valor.length <= 11) {
+      setTelefone(formatarTelefone(valor))
+    }
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
 
-    if (!email || !validarEmail(email)) {
-      toast.error('Digite um email válido')
+    if (!telefone || telefone.replace(/\D/g, '').length < 10) {
+      toast.error('Digite um telefone válido')
       return
     }
 
     setLoading(true)
 
     try {
-      const resultado = await recuperarSenha(email)
+      const resultado = await enviarSenhaTemporaria(telefone)
 
       if (resultado.success) {
         setEnviado(true)
-        toast.success(resultado.message || 'Instruções enviadas para seu email!')
+        toast.success('Senha temporária enviada para seu WhatsApp!')
       } else {
-        toast.error(resultado.error || 'Erro ao recuperar senha')
+        toast.error(resultado.error || 'Erro ao enviar senha temporária')
       }
     } catch (error) {
       toast.error('Erro inesperado. Tente novamente.')
@@ -50,9 +56,9 @@ export default function RecuperarSenhaPage() {
             </div>
 
             <div className="space-y-3">
-              <h1 className="text-3xl font-bold text-white">Email Enviado!</h1>
+              <h1 className="text-3xl font-bold text-white">Senha Enviada!</h1>
               <p className="text-vinci-accent text-lg">
-                Verifique sua caixa de entrada e siga as instruções para redefinir sua senha.
+                Uma senha temporária foi enviada para seu WhatsApp. Use-a para fazer login e depois altere sua senha.
               </p>
             </div>
 
@@ -84,7 +90,7 @@ export default function RecuperarSenhaPage() {
 
         <div className="text-center">
           <h1 className="text-3xl font-bold text-white mb-2">Recuperar Senha</h1>
-          <p className="text-vinci-accent">Digite seu email para receber as instruções</p>
+          <p className="text-vinci-accent">Digite seu telefone para receber uma senha temporária</p>
         </div>
       </div>
 
@@ -93,20 +99,20 @@ export default function RecuperarSenhaPage() {
         <form onSubmit={handleSubmit} className="space-y-6 max-w-md mx-auto">
           <div className="space-y-2">
             <p className="text-muted-foreground">
-              Enviaremos um email com instruções para redefinir sua senha.
+              Enviaremos uma senha temporária via WhatsApp para você fazer login.
             </p>
           </div>
 
-          {/* Email */}
+          {/* Telefone */}
           <div>
-            <label className="block text-sm font-medium mb-2">Email cadastrado</label>
+            <label className="block text-sm font-medium mb-2">Telefone cadastrado</label>
             <div className="relative">
-              <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground pointer-events-none" />
+              <Phone className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground pointer-events-none" />
               <input
-                type="email"
-                placeholder="seu@email.com"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
+                type="tel"
+                placeholder="(11) 98765-4321"
+                value={telefone}
+                onChange={handleTelefoneChange}
                 className="w-full pl-12 pr-4 py-3 bg-background border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-vinci-primary focus:border-transparent transition-all duration-200"
                 disabled={loading}
                 autoFocus
@@ -127,8 +133,8 @@ export default function RecuperarSenhaPage() {
               </>
             ) : (
               <>
-                <Mail className="w-5 h-5" />
-                <span>Enviar Instruções</span>
+                <Phone className="w-5 h-5" />
+                <span>Enviar Senha Temporária</span>
               </>
             )}
           </button>
@@ -137,7 +143,7 @@ export default function RecuperarSenhaPage() {
           <div className="pt-4 border-t border-border">
             <div className="bg-vinci-primary/10 border border-vinci-primary/20 rounded-lg p-4">
               <p className="text-sm text-muted-foreground">
-                <strong className="text-foreground">Dica:</strong> Caso não receba o email em alguns minutos, verifique sua caixa de spam ou entre em contato conosco.
+                <strong className="text-foreground">Dica:</strong> A senha temporária será enviada via WhatsApp. Após fazer login, altere sua senha em Perfil.
               </p>
             </div>
           </div>
