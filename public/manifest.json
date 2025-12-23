@@ -1,7 +1,7 @@
 {
-  "name": "Vinci Barbearia - Cliente",
+  "name": "Vince Barbearia - Cliente",
   "short_name": "Vince Cliente",
-  "description": "Aplicativo para clientes da Vinci Barbearia - Agende seu horário",
+  "description": "Aplicativo para clientes da Vince Barbearia - Agende seu horário",
   "theme_color": "#1b263a",
   "background_color": "#1b263a",
   "display": "standalone",

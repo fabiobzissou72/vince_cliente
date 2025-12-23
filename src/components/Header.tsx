@@ -20,9 +20,9 @@ export default function Header({ title, showUser = true }: HeaderProps) {
       <div className="max-w-2xl mx-auto">
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center space-x-3">
-            <Image src="/logo.png" alt="Vinci Barbearia" width={64} height={64} className="object-contain" />
+            <Image src="/logo.png" alt="Vince Barbearia" width={64} height={64} className="object-contain" />
             <div>
-              <h1 className="text-xl font-bold">Vinci Barbearia</h1>
+              <h1 className="text-xl font-bold">Vince Barbearia</h1>
             </div>
           </div>
 

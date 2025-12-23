@@ -113,7 +113,7 @@ export default function LoginPage() {
             className="object-contain"
           />
         </div>
-        <h1 className="text-3xl font-bold text-white mb-2">Vinci Barbearia</h1>
+        <h1 className="text-3xl font-bold text-white mb-2">Vince Barbearia</h1>
         <p className="text-white">Bem-vindo de volta!</p>
       </div>
 
@@ -166,7 +166,7 @@ export default function LoginPage() {
             <div className="text-center">
               <p className="text-sm text-muted-foreground">
                 Primeira vez aqui?{' '}
-                <Link href="/cadastro" className="text-white font-medium hover:underline">
+                <Link href="/cadastro" className="text-vinci-primary font-medium hover:underline">
                   Fazer cadastro
                 </Link>
               </p>
@@ -309,7 +309,7 @@ export default function LoginPage() {
                     setLoading(false)
                   }}
                   disabled={loading}
-                  className="text-sm text-white hover:underline"
+                  className="text-sm text-vinci-primary font-medium hover:underline"
                 >
                   Esqueci minha senha
                 </button>

@@ -28,13 +28,13 @@ export default function HomePage() {
       <div className="text-center space-y-6 animate-fadeIn">
         <div className="relative">
           <div className="absolute inset-0 animate-pulse opacity-50">
-            <Image src="/logo.png" alt="Vinci Barbearia" width={120} height={120} className="mx-auto object-contain" />
+            <Image src="/logo.png" alt="Vince Barbearia" width={120} height={120} className="mx-auto object-contain" />
           </div>
-          <Image src="/logo.png" alt="Vinci Barbearia" width={120} height={120} className="mx-auto object-contain relative z-10" />
+          <Image src="/logo.png" alt="Vince Barbearia" width={120} height={120} className="mx-auto object-contain relative z-10" />
         </div>
 
         <div className="space-y-2">
-          <h1 className="text-4xl font-bold text-white">Vinci</h1>
+          <h1 className="text-4xl font-bold text-white">Vince</h1>
           <p className="text-vinci-accent text-lg">Barbearia</p>
         </div>
 
@@ -45,7 +45,7 @@ export default function HomePage() {
       </div>
 
       <div className="absolute bottom-8 text-center text-white/60 text-xs">
-        <p>© 2024 Vinci Barbearia</p>
+        <p>© 2024 Vince Barbearia</p>
       </div>
     </div>
   )

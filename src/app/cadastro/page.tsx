@@ -306,7 +306,7 @@ export default function CadastroPage() {
 
               {/* Como Soube */}
               <div>
-                <label className="block text-sm font-medium mb-2">Como conheceu a Vinci?</label>
+                <label className="block text-sm font-medium mb-2">Como conheceu a Vince?</label>
                 <div className="relative">
                   <HelpCircle className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
                   <select

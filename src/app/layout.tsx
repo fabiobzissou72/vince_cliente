@@ -6,14 +6,14 @@ import { Providers } from './providers'
 const inter = Inter({ subsets: ['latin'] })
 
 export const metadata: Metadata = {
-  title: 'Vinci Barbearia - Cliente',
-  description: 'Agende seu horário na Vinci Barbearia',
+  title: 'Vince Barbearia - Cliente',
+  description: 'Agende seu horário na Vince Barbearia',
   generator: 'Next.js',
   manifest: '/manifest.json',
-  keywords: ['barbearia', 'vinci', 'agendamento', 'corte', 'cabelo', 'barba'],
+  keywords: ['barbearia', 'vince', 'agendamento', 'corte', 'cabelo', 'barba'],
   authors: [
     {
-      name: 'Vinci Barbearia',
+      name: 'Vince Barbearia',
       url: 'https://vincibarbearia.com.br',
     },
   ],
@@ -45,7 +45,7 @@ export default function RootLayout({
         <link rel="apple-touch-icon" sizes="180x180" href="/icons/icon-192x192.png" />
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-status-bar-style" content="default" />
-        <meta name="apple-mobile-web-app-title" content="Vinci" />
+        <meta name="apple-mobile-web-app-title" content="Vince" />
         <meta name="format-detection" content="telephone=no" />
         <meta name="mobile-web-app-capable" content="yes" />
       </head>

@@ -115,20 +115,26 @@ export async function buscarAgendamentosCliente(
 
     const data = await response.json() as any
 
-    // A API pode retornar diferentes formatos
-    let agendamentosRaw = data.agendamentos || data.agendamentos_futuros || []
+    // A API retorna em data.agendamentos_futuros
+    let agendamentosRaw = data.agendamentos_futuros || data.agendamentos || []
 
-    // Mapeia para o formato esperado se necessário
+    // Mapeia para o formato esperado
     let agendamentos = agendamentosRaw.map((ag: any) => {
       // Se já está no formato correto (tem data_agendamento), retorna como está
       if (ag.data_agendamento) {
         return ag
       }
 
-      // Caso contrário, mapeia do formato da API de produção
+      // Mapeia do formato da API: data (DD/MM/YYYY) → data_agendamento (YYYY-MM-DD)
+      let dataAgendamento = null
+      if (ag.data) {
+        const [dia, mes, ano] = ag.data.split('/')
+        dataAgendamento = `${ano}-${mes.padStart(2, '0')}-${dia.padStart(2, '0')}`
+      }
+
       return {
         id: ag.id,
-        data_agendamento: ag.data ? ag.data.split('/').reverse().join('-') : null, // Converte DD/MM/YYYY para YYYY-MM-DD
+        data_agendamento: dataAgendamento,
         hora_inicio: ag.hora_inicio,
         status: ag.status,
         profissional: ag.barbeiro ? { nome: ag.barbeiro } : null,
