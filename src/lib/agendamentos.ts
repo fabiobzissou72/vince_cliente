@@ -142,14 +142,14 @@ export async function buscarAgendamentosCliente(
     if (filtro === 'proximos') {
       const hoje = new Date()
       hoje.setHours(0, 0, 0, 0)
-      agendamentos = agendamentos.filter(ag => {
+      agendamentos = agendamentos.filter((ag: Agendamento) => {
         const dataAg = new Date(ag.data_agendamento)
         return dataAg >= hoje && ['agendado', 'confirmado'].includes(ag.status)
       })
     } else if (filtro === 'historico') {
       const hoje = new Date()
       hoje.setHours(0, 0, 0, 0)
-      agendamentos = agendamentos.filter(ag => {
+      agendamentos = agendamentos.filter((ag: Agendamento) => {
         const dataAg = new Date(ag.data_agendamento)
         return dataAg < hoje || ['concluido', 'cancelado'].includes(ag.status)
       })
