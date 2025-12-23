@@ -19,16 +19,27 @@ const withPWA = require('next-pwa')({
         }
       }
     },
+    // APIs - SEMPRE busca rede primeiro (NetworkFirst)
     {
       urlPattern: /^https:\/\/vincibarbearia\.vercel\.app\/api\/.*/,
       handler: 'NetworkFirst',
       options: {
         cacheName: 'api-cache',
+        networkTimeoutSeconds: 5,
         expiration: {
           maxEntries: 50,
-          maxAgeSeconds: 5 * 60
+          maxAgeSeconds: 60 // 1 minuto apenas
         }
       }
+    },
+    // APIs locais (proxy) - NetworkOnly (NUNCA cacheia)
+    {
+      urlPattern: /^https:\/\/vincecliente\.vercel\.app\/api\/proxy\/.*/,
+      handler: 'NetworkOnly'
+    },
+    {
+      urlPattern: /^http:\/\/localhost:\d+\/api\/proxy\/.*/,
+      handler: 'NetworkOnly'
     },
     {
       urlPattern: /^https:\/\/fonts\.(?:gstatic|googleapis)\.com\/.*/i,
