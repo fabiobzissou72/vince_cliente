@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation'
 import { useAuth } from '@/contexts/AuthContext'
 import Header from '@/components/Header'
 import BottomNav from '@/components/BottomNav'
-import { User, Mail, Phone, Calendar, Briefcase, Heart, Users, MessageSquare, Lock, LogOut, Edit2, Save, X, Loader2 } from 'lucide-react'
+import { User, Mail, Phone, Calendar, Briefcase, Heart, Users, MessageSquare, Lock, LogOut, Edit2, Save, X, Loader2, Download } from 'lucide-react'
 import { atualizarDadosCliente } from '@/lib/agendamentos'
 import { atualizarSenha } from '@/lib/auth'
 import { formatarTelefone } from '@/lib/auth'
@@ -19,6 +19,8 @@ export default function PerfilPage() {
   const [editando, setEditando] = useState(false)
   const [alterandoSenha, setAlterandoSenha] = useState(false)
   const [salvando, setSalvando] = useState(false)
+  const [deferredPrompt, setDeferredPrompt] = useState<any>(null)
+  const [podeInstalar, setPodeInstalar] = useState(false)
 
   // Dados editáveis
   const [dadosEditados, setDadosEditados] = useState({
@@ -46,6 +48,25 @@ export default function PerfilPage() {
       router.push('/login')
     }
   }, [authLoading, cliente, router])
+
+  useEffect(() => {
+    // Verifica se já está instalado
+    const isStandalone = window.matchMedia('(display-mode: standalone)').matches
+    if (isStandalone) {
+      setPodeInstalar(false)
+      return
+    }
+
+    // Captura evento de instalação
+    const handler = (e: any) => {
+      e.preventDefault()
+      setDeferredPrompt(e)
+      setPodeInstalar(true)
+    }
+
+    window.addEventListener('beforeinstallprompt', handler)
+    return () => window.removeEventListener('beforeinstallprompt', handler)
+  }, [])
 
   useEffect(() => {
     if (cliente) {
@@ -499,6 +520,27 @@ export default function PerfilPage() {
               </button>
             )}
           </div>
+        )}
+
+        {/* Instalar App */}
+        {!editando && !alterandoSenha && podeInstalar && deferredPrompt && (
+          <button
+            onClick={async () => {
+              if (deferredPrompt) {
+                deferredPrompt.prompt()
+                const { outcome } = await deferredPrompt.userChoice
+                if (outcome === 'accepted') {
+                  toast.success('App instalado com sucesso!')
+                  setPodeInstalar(false)
+                }
+                setDeferredPrompt(null)
+              }
+            }}
+            className="mt-6 w-full card p-4 flex items-center justify-center space-x-3 bg-gradient-to-r from-vinci-primary to-vinci-secondary text-white hover:shadow-lg transition-all"
+          >
+            <Download className="w-5 h-5" />
+            <span className="font-medium">Instalar Aplicativo</span>
+          </button>
         )}
 
         {/* Logout */}

@@ -18,13 +18,10 @@ export default function InstallPrompt() {
       return
     }
 
-    // Verifica se o usuário já recusou antes (nos últimos 7 dias)
-    const ultimaRecusa = localStorage.getItem('pwa_install_dismissed')
-    if (ultimaRecusa) {
-      const diasDesdeRecusa = (Date.now() - parseInt(ultimaRecusa)) / (1000 * 60 * 60 * 24)
-      if (diasDesdeRecusa < 7) {
-        return
-      }
+    // Verifica se o usuário já recusou antes (NUNCA mais aparece)
+    const jaRecusou = localStorage.getItem('pwa_install_dismissed')
+    if (jaRecusou === 'true') {
+      return
     }
 
     // Captura o evento beforeinstallprompt
@@ -65,8 +62,8 @@ export default function InstallPrompt() {
 
   const handleDismiss = () => {
     setShowPrompt(false)
-    // Salva a data da recusa
-    localStorage.setItem('pwa_install_dismissed', Date.now().toString())
+    // Salva que o usuário recusou (nunca mais aparece automaticamente)
+    localStorage.setItem('pwa_install_dismissed', 'true')
   }
 
   if (!showPrompt || !deferredPrompt) {
