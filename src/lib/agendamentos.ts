@@ -118,6 +118,9 @@ export async function buscarAgendamentosCliente(
     // A API retorna em data.agendamentos_futuros
     let agendamentosRaw = data.agendamentos_futuros || data.agendamentos || []
 
+    console.log('📦 Dados recebidos da API:', data)
+    console.log('📋 Agendamentos raw:', agendamentosRaw)
+
     // Mapeia para o formato esperado
     let agendamentos = agendamentosRaw.map((ag: any) => {
       // Se já está no formato correto (tem data_agendamento), retorna como está
@@ -144,21 +147,18 @@ export async function buscarAgendamentosCliente(
       }
     })
 
-    // Aplica filtro se fornecido
+    console.log('🔄 Agendamentos mapeados:', agendamentos)
+
+    // A API já retorna apenas agendamentos futuros, então:
+    // - "proximos" = todos (já são futuros)
+    // - "historico" = vazio (API não retorna histórico)
     if (filtro === 'proximos') {
-      const hoje = new Date()
-      hoje.setHours(0, 0, 0, 0)
-      agendamentos = agendamentos.filter((ag: Agendamento) => {
-        const dataAg = new Date(ag.data_agendamento)
-        return dataAg >= hoje && ['agendado', 'confirmado'].includes(ag.status)
-      })
+      // Não filtra, retorna todos (API já filtrou)
+      return agendamentos
     } else if (filtro === 'historico') {
-      const hoje = new Date()
-      hoje.setHours(0, 0, 0, 0)
-      agendamentos = agendamentos.filter((ag: Agendamento) => {
-        const dataAg = new Date(ag.data_agendamento)
-        return dataAg < hoje || ['concluido', 'cancelado'].includes(ag.status)
-      })
+      // API de meus-agendamentos não retorna histórico
+      // Retorna vazio ou poderia chamar outra API
+      return []
     }
 
     return agendamentos
