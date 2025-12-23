@@ -1,13 +1,14 @@
 {
   "name": "Vince Barbearia - Cliente",
   "short_name": "Vince Cliente",
+  "version": "1.1.0",
   "description": "Aplicativo para clientes da Vince Barbearia - Agende seu horário",
   "theme_color": "#1b263a",
   "background_color": "#1b263a",
   "display": "standalone",
   "orientation": "portrait",
   "scope": "/",
-  "start_url": "/",
+  "start_url": "/?v=1.1.0",
   "icons": [
     {
       "src": "/icons/icon-72x72.png",
