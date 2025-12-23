@@ -276,15 +276,11 @@ export async function enviarSenhaTemporaria(telefone: string): Promise<{
   try {
     const telefoneLimpo = telefone.replace(/\D/g, '')
 
-    // Chama API dedicada para envio de senha
-    const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || 'https://vincibarbearia.vercel.app'
-    const apiToken = process.env.NEXT_PUBLIC_API_TOKEN || 'vinci_j7mNuInUyCKojb6HH79jOMHH8zwb03hBwSONDhodZbOtRMbGMchazIO1zW7Ea7uv'
-
-    const response = await fetch(`${apiBaseUrl}/api/clientes/enviar-senha-temporaria`, {
+    // Chama proxy local que se comunica com a API principal
+    const response = await fetch('/api/proxy/enviar-senha-temporaria', {
       method: 'POST',
       headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${apiToken}`
+        'Content-Type': 'application/json'
       },
       body: JSON.stringify({ telefone: telefoneLimpo })
     })
