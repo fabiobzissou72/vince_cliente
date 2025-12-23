@@ -231,12 +231,59 @@ export default function AgendarPage() {
     return barbeiro?.nome || 'Barbeiro'
   }
 
+  // Detecta se é apenas compra (produtos/planos) ou se requer agendamento (servicos)
+  const apenasCompra = carrinho.length > 0 && !carrinho.some(i => i.tipo === 'servico')
+
   function avancarParaAgendamento() {
     if (carrinho.length === 0) {
       toast.error('Selecione pelo menos um item')
       return
     }
+
+    // Se for apenas compra (produtos/planos), confirma direto
+    if (apenasCompra) {
+      confirmarCompra()
+      return
+    }
+
     setEtapa('agendamento')
+  }
+
+  async function confirmarCompra() {
+    if (!cliente) return
+
+    setCriandoAgendamento(true)
+
+    try {
+      const produtoIds = carrinho.filter(i => i.tipo === 'produto').map(i => i.id)
+      const planoIds = carrinho.filter(i => i.tipo === 'plano').map(i => i.id)
+
+      const response = await fetch(`${API_PROXY}/criar-compra`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          cliente_nome: cliente.nome_completo,
+          telefone: cliente.telefone,
+          produto_ids: produtoIds,
+          plano_ids: planoIds
+        })
+      })
+
+      const data = await response.json()
+
+      if (data.success) {
+        setCarrinho([])
+        localStorage.removeItem('carrinho')
+        toast.success('Compra realizada com sucesso! Retire na barbearia.')
+        router.push('/agendamentos')
+      } else {
+        toast.error(data.error || 'Erro ao processar compra')
+      }
+    } catch (error) {
+      toast.error('Erro ao processar compra')
+    } finally {
+      setCriandoAgendamento(false)
+    }
   }
 
   async function confirmarAgendamento() {
@@ -395,8 +442,17 @@ export default function AgendarPage() {
                   <span className="font-bold text-lg">Total</span>
                   <span className="font-bold text-2xl text-vinci-gold">R$ {calcularTotal().toFixed(2)}</span>
                 </div>
-                <button onClick={avancarParaAgendamento} className="w-full btn-primary mt-4">
-                  Avançar para Agendamento
+                <button onClick={avancarParaAgendamento} className="w-full btn-primary mt-4" disabled={criandoAgendamento}>
+                  {criandoAgendamento ? (
+                    <span className="flex items-center justify-center">
+                      <Loader2 className="w-5 h-5 animate-spin mr-2" />
+                      Processando...
+                    </span>
+                  ) : apenasCompra ? (
+                    'Confirmar Compra'
+                  ) : (
+                    'Avançar para Agendamento'
+                  )}
                 </button>
               </div>
             )}
