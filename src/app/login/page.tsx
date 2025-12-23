@@ -152,7 +152,7 @@ export default function LoginPage() {
           <div className="text-center">
             <Link
               href="/recuperar-senha"
-              className="text-sm text-vinci-primary font-medium hover:underline"
+              className="text-sm text-vinci-primary dark:text-vinci-accent font-medium hover:underline"
             >
               Esqueci minha senha
             </Link>
@@ -160,9 +160,9 @@ export default function LoginPage() {
 
           {/* Link Cadastro */}
           <div className="text-center">
-            <p className="text-sm text-muted-foreground">
+            <p className="text-sm text-muted-foreground dark:text-gray-300">
               Primeira vez aqui?{' '}
-              <Link href="/cadastro" className="text-vinci-primary font-medium hover:underline">
+              <Link href="/cadastro" className="text-vinci-primary dark:text-vinci-accent font-medium hover:underline">
                 Fazer cadastro
               </Link>
             </p>
