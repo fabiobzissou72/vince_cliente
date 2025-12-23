@@ -174,7 +174,21 @@ export default function AgendamentosPage() {
                     </div>
                   )}
 
-                  {agendamento.observacoes && (
+                  {/* Compras/Pacotes (quando não tem serviços mas tem observações com COMPRA) */}
+                  {agendamento.observacoes && agendamento.observacoes.startsWith('COMPRA:') && (
+                    <div className="pt-3 border-t border-border">
+                      <p className="text-xs font-semibold text-muted-foreground uppercase mb-2">Compra</p>
+                      <p className="text-sm font-medium text-vinci-primary">
+                        {agendamento.observacoes.replace('COMPRA:', '').trim()}
+                      </p>
+                      <p className="text-xs text-muted-foreground mt-2">
+                        📦 Retire na barbearia
+                      </p>
+                    </div>
+                  )}
+
+                  {/* Outras observações */}
+                  {agendamento.observacoes && !agendamento.observacoes.startsWith('COMPRA:') && (
                     <div className="pt-3 border-t border-border">
                       <p className="text-sm text-muted-foreground flex items-start space-x-2">
                         <AlertCircle className="w-4 h-4 flex-shrink-0 mt-0.5" />
