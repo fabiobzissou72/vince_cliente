@@ -231,8 +231,13 @@ export default function AgendarPage() {
     return barbeiro?.nome || 'Barbeiro'
   }
 
-  // Detecta se é apenas compra (produtos/planos) ou se requer agendamento (servicos)
-  const apenasCompra = carrinho.length > 0 && !carrinho.some(i => i.tipo === 'servico')
+  // Detecta o tipo de carrinho
+  const temServicos = carrinho.some(i => i.tipo === 'servico')
+  const temPlanos = carrinho.some(i => i.tipo === 'plano')
+  const temProdutos = carrinho.some(i => i.tipo === 'produto')
+
+  // APENAS produtos (sem planos/serviços) = compra sem agendamento
+  const apenasCompraProdutos = carrinho.length > 0 && !temServicos && !temPlanos && temProdutos
 
   function avancarParaAgendamento() {
     if (carrinho.length === 0) {
@@ -240,12 +245,13 @@ export default function AgendarPage() {
       return
     }
 
-    // Se for apenas compra (produtos/planos), confirma direto
-    if (apenasCompra) {
+    // Se for APENAS produtos (sem planos), confirma compra direto SEM agendamento
+    if (apenasCompraProdutos) {
       confirmarCompra()
       return
     }
 
+    // Se tem planos OU serviços → vai para tela de agendamento (escolhe barbeiro + data + hora)
     setEtapa('agendamento')
   }
 
@@ -293,10 +299,18 @@ export default function AgendarPage() {
       return
     }
 
+    // Se tem planos mas não tem serviços, precisa de barbeiro
+    if (temPlanos && !temServicos && !barbeiroSelecionado) {
+      toast.error('Selecione um profissional')
+      return
+    }
+
     setCriandoAgendamento(true)
 
     try {
       const servicoIds = carrinho.filter(i => i.tipo === 'servico').map(i => i.id)
+      const produtoIds = carrinho.filter(i => i.tipo === 'produto').map(i => i.id)
+      const planoIds = carrinho.filter(i => i.tipo === 'plano').map(i => i.id)
       const [dia, mes, ano] = dataSelecionada.split('-').reverse()
 
       const response = await fetch(`${API_PROXY}/criar-agendamento`, {
@@ -308,6 +322,8 @@ export default function AgendarPage() {
           data: `${dia}-${mes}-${ano}`,
           hora: horarioSelecionado,
           servico_ids: servicoIds,
+          produto_ids: produtoIds,
+          plano_ids: planoIds,
           barbeiro_id: barbeiroSelecionado && barbeiroSelecionado !== 'Qualquer' ? barbeiroSelecionado : undefined
         })
       })
@@ -318,7 +334,14 @@ export default function AgendarPage() {
         // Limpar carrinho após sucesso
         setCarrinho([])
         localStorage.removeItem('carrinho')
-        toast.success('Agendamento criado com sucesso!')
+
+        // Mensagem personalizada baseada no que foi agendado
+        if (planoIds.length > 0 && servicoIds.length === 0) {
+          toast.success('Pacote adquirido! Primeira sessão agendada com sucesso!')
+        } else {
+          toast.success('Agendamento criado com sucesso!')
+        }
+
         router.push('/agendamentos')
       } else {
         toast.error(data.error || 'Erro ao criar agendamento')
@@ -448,8 +471,10 @@ export default function AgendarPage() {
                       <Loader2 className="w-5 h-5 animate-spin mr-2" />
                       Processando...
                     </span>
-                  ) : apenasCompra ? (
+                  ) : apenasCompraProdutos ? (
                     'Confirmar Compra'
+                  ) : temPlanos && !temServicos ? (
+                    'Agendar Primeira Sessão'
                   ) : (
                     'Avançar para Agendamento'
                   )}
@@ -467,7 +492,7 @@ export default function AgendarPage() {
             </button>
 
             {/* BARBEIRO - Exibir barbeiro selecionado */}
-            {carrinho.some(i => i.tipo === 'servico') && barbeiroSelecionado && (
+            {(temServicos || temPlanos) && barbeiroSelecionado && (
               <div className="bg-white dark:bg-gray-800 rounded-2xl p-4 shadow-sm">
                 <div className="flex items-center space-x-4">
                   <div className="w-16 h-16 rounded-full bg-gray-300 dark:bg-gray-600 flex items-center justify-center overflow-hidden">
@@ -488,7 +513,7 @@ export default function AgendarPage() {
             )}
 
             {/* Escolher Profissional */}
-            {carrinho.some(i => i.tipo === 'servico') && !barbeiroSelecionado && (
+            {(temServicos || temPlanos) && !barbeiroSelecionado && (
               <div>
                 <h3 className="font-bold text-lg mb-3">Escolher Profissional</h3>
                 <div className="space-y-3">
