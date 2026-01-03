@@ -101,8 +101,10 @@ export default function AgendarPage() {
   }, [])
 
   useEffect(() => {
-    console.log('🔄 useEffect disparado:', { etapa, dataSelecionada, temServico: carrinho.some(i => i.tipo === 'servico') })
-    if (etapa === 'agendamento' && dataSelecionada && carrinho.some(i => i.tipo === 'servico')) {
+    console.log('🔄 useEffect disparado:', { etapa, dataSelecionada, temServico: carrinho.some(i => i.tipo === 'servico'), temPlano: carrinho.some(i => i.tipo === 'plano') })
+    // Buscar horários se tem serviços OU se tem planos (para agendar primeira sessão)
+    const precisaBuscarHorarios = carrinho.some(i => i.tipo === 'servico' || i.tipo === 'plano')
+    if (etapa === 'agendamento' && dataSelecionada && precisaBuscarHorarios) {
       console.log('✅ Vai buscar horários')
       buscarHorarios()
     } else {
@@ -593,7 +595,7 @@ export default function AgendarPage() {
             </div>
 
             {/* HORÁRIOS DISPONÍVEIS */}
-            {dataSelecionada && carrinho.some(i => i.tipo === 'servico') && (
+            {dataSelecionada && carrinho.some(i => i.tipo === 'servico' || i.tipo === 'plano') && (
               <div>
                 <h2 className="text-2xl font-bold mb-6">Horários disponíveis</h2>
                 {loadingHorarios ? (

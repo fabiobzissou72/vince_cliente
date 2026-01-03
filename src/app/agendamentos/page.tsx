@@ -187,8 +187,21 @@ export default function AgendamentosPage() {
                     </div>
                   )}
 
+                  {/* Pacotes (quando tem observações com PACOTE) */}
+                  {agendamento.observacoes && agendamento.observacoes.startsWith('PACOTE:') && (
+                    <div className="pt-3 border-t border-border">
+                      <p className="text-xs font-semibold text-muted-foreground uppercase mb-2">Pacote</p>
+                      <p className="text-sm font-medium text-blue-600">
+                        {agendamento.observacoes.replace('PACOTE:', '').trim()}
+                      </p>
+                      <p className="text-xs text-muted-foreground mt-2">
+                        🎁 Pacote adquirido - Sessão agendada
+                      </p>
+                    </div>
+                  )}
+
                   {/* Outras observações */}
-                  {agendamento.observacoes && !agendamento.observacoes.startsWith('COMPRA:') && (
+                  {agendamento.observacoes && !agendamento.observacoes.startsWith('COMPRA:') && !agendamento.observacoes.startsWith('PACOTE:') && (
                     <div className="pt-3 border-t border-border">
                       <p className="text-sm text-muted-foreground flex items-start space-x-2">
                         <AlertCircle className="w-4 h-4 flex-shrink-0 mt-0.5" />

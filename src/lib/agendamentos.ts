@@ -203,7 +203,7 @@ export async function buscarAgendamentosCliente(
         profissional: ag.barbeiro ? { nome: ag.barbeiro } : null,
         servico: ag.servicos && ag.servicos[0] ? ag.servicos[0] : null,
         servicos: ag.servicos || [],
-        observacoes: null
+        observacoes: ag.observacoes || null
       }
     })
 
