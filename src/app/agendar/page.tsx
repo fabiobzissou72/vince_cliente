@@ -154,11 +154,13 @@ export default function AgendarPage() {
     try {
       setLoadingHorarios(true)
       const servicoIds = carrinho.filter(i => i.tipo === 'servico').map(i => i.id).join(',')
+      const temPlanos = carrinho.some(i => i.tipo === 'plano')
 
-      console.log('🔍 Buscando horários com:', { dataSelecionada, barbeiroSelecionado, servicoIds })
+      console.log('🔍 Buscando horários com:', { dataSelecionada, barbeiroSelecionado, servicoIds, temPlanos })
 
-      if (!servicoIds) {
-        console.log('❌ Nenhum serviço no carrinho')
+      // Se não tem serviços E não tem planos, retorna vazio
+      if (!servicoIds && !temPlanos) {
+        console.log('❌ Nenhum serviço ou plano no carrinho')
         setHorarios([])
         return
       }
@@ -169,7 +171,10 @@ export default function AgendarPage() {
         ? getNomeBarbeiro(barbeiroSelecionado)
         : ''
       const barbeiroParam = barbeiroNome ? `&barbeiro=${encodeURIComponent(barbeiroNome)}` : ''
-      const url = `${API_PROXY}/horarios?data=${dataSelecionada}${barbeiroParam}&servico_ids=${servicoIds}`
+
+      // Se tem serviços, envia servico_ids. Se só tem planos, busca horários genéricos
+      const servicoParam = servicoIds ? `&servico_ids=${servicoIds}` : ''
+      const url = `${API_PROXY}/horarios?data=${dataSelecionada}${barbeiroParam}${servicoParam}`
       console.log('📡 URL da API:', url)
 
       const response = await fetch(url)

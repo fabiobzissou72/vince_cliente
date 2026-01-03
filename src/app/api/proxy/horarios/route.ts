@@ -13,8 +13,8 @@ export async function GET(request: NextRequest) {
     const barbeiro = searchParams.get('barbeiro')
     const servico_ids = searchParams.get('servico_ids')
 
-    if (!data || !servico_ids) {
-      return NextResponse.json({ error: 'Data e servico_ids são obrigatórios' }, { status: 400 })
+    if (!data) {
+      return NextResponse.json({ error: 'Data é obrigatória' }, { status: 400 })
     }
 
     let url = `${API_BASE}/api/agendamentos/horarios-disponiveis?data=${data}`
