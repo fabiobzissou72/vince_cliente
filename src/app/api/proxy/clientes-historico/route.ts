@@ -11,11 +11,16 @@ export async function GET(request: NextRequest) {
     const searchParams = request.nextUrl.searchParams
     const telefone = searchParams.get('telefone')
 
+    console.log('🔄 [PROXY] Recebida requisição de histórico para:', telefone)
+
     if (!telefone) {
       return NextResponse.json({ error: 'Telefone obrigatorio' }, { status: 400 })
     }
 
-    const response = await fetch(`${API_BASE}/api/clientes/historico?telefone=${telefone}`, {
+    const url = `${API_BASE}/api/clientes/historico?telefone=${telefone}`
+    console.log('🌐 [PROXY] Fazendo fetch para:', url)
+
+    const response = await fetch(url, {
       headers: {
         'Authorization': `Bearer ${API_TOKEN}`,
         'Content-Type': 'application/json'
@@ -23,7 +28,14 @@ export async function GET(request: NextRequest) {
       cache: 'no-store'
     })
 
+    console.log('📡 [PROXY] Status recebido da API:', response.status)
+
     const data = await response.json()
+    console.log('📦 [PROXY] Dados recebidos da API:', {
+      success: data.success,
+      totalAgendamentos: data.agendamentos?.length || 0,
+      agendamentos: data.agendamentos
+    })
 
     return NextResponse.json(data, {
       headers: {
@@ -33,7 +45,7 @@ export async function GET(request: NextRequest) {
       }
     })
   } catch (error) {
-    console.error('Erro ao buscar historico:', error)
+    console.error('❌ [PROXY] Erro ao buscar historico:', error)
     return NextResponse.json({ error: 'Erro ao buscar historico' }, { status: 500 })
   }
 }

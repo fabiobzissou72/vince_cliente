@@ -324,21 +324,32 @@ export async function confirmarComparecimento(
  */
 export async function buscarHistoricoCliente(telefone: string): Promise<Agendamento[]> {
   try {
+    console.log('🔍 Buscando histórico para telefone:', telefone)
+
     const response = await fetch(`/api/proxy/clientes-historico?telefone=${telefone}`, {
       headers: { 'Content-Type': 'application/json' },
       cache: 'no-store'
     })
+
+    console.log('📡 Status da resposta:', response.status)
 
     if (!response.ok) {
       throw new Error('Erro ao buscar historico')
     }
 
     const data = await response.json() as any
-    const agendamentosRaw = data?.agendamentos || []
+    console.log('📦 Dados completos recebidos:', data)
 
-    return agendamentosRaw.map(mapAgendamentoHistorico)
+    const agendamentosRaw = data?.agendamentos || []
+    console.log('📋 Total de agendamentos no histórico:', agendamentosRaw.length)
+    console.log('📋 Agendamentos raw:', agendamentosRaw)
+
+    const agendamentosMapeados = agendamentosRaw.map(mapAgendamentoHistorico)
+    console.log('✅ Agendamentos mapeados:', agendamentosMapeados)
+
+    return agendamentosMapeados
   } catch (error) {
-    console.error('Erro ao buscar histórico:', error)
+    console.error('❌ Erro ao buscar histórico:', error)
     return []
   }
 }
