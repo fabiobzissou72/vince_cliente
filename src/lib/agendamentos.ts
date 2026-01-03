@@ -45,6 +45,12 @@ function mapAgendamentoHistorico(ag: any): Agendamento {
   const servicos = mapServicosHistorico(ag)
   const profissional = ag.profissional || ag.profissionais || (ag.barbeiro ? { nome: ag.barbeiro } : null)
 
+  // Calcular valor total se não vier da API
+  let valorTotal = ag.valor || ag.valor_total || null
+  if (!valorTotal && servicos && servicos.length > 0) {
+    valorTotal = servicos.reduce((sum, s) => sum + (s.preco || 0), 0)
+  }
+
   return {
     id: ag.id,
     data_agendamento: dataAgendamento || ag.data_agendamento,
@@ -53,7 +59,8 @@ function mapAgendamentoHistorico(ag: any): Agendamento {
     profissional,
     servico: servicos && servicos[0] ? servicos[0] : null,
     servicos,
-    observacoes: ag.observacoes ?? null
+    observacoes: ag.observacoes ?? null,
+    valor: valorTotal
   } as Agendamento
 }
 
@@ -183,14 +190,9 @@ export async function buscarAgendamentosCliente(
 
     // Mapeia para o formato esperado
     let agendamentos = agendamentosRaw.map((ag: any) => {
-      // Se já está no formato correto (tem data_agendamento), retorna como está
-      if (ag.data_agendamento) {
-        return ag
-      }
-
       // Mapeia do formato da API: data (DD/MM/YYYY) → data_agendamento (YYYY-MM-DD)
-      let dataAgendamento = null
-      if (ag.data) {
+      let dataAgendamento = ag.data_agendamento
+      if (!dataAgendamento && ag.data) {
         const [dia, mes, ano] = ag.data.split('/')
         dataAgendamento = `${ano}-${mes.padStart(2, '0')}-${dia.padStart(2, '0')}`
       }
@@ -200,10 +202,11 @@ export async function buscarAgendamentosCliente(
         data_agendamento: dataAgendamento,
         hora_inicio: ag.hora_inicio,
         status: ag.status,
-        profissional: ag.barbeiro ? { nome: ag.barbeiro } : null,
+        profissional: ag.barbeiro ? { nome: ag.barbeiro } : (ag.profissional || ag.profissionais || null),
         servico: ag.servicos && ag.servicos[0] ? ag.servicos[0] : null,
         servicos: ag.servicos || [],
-        observacoes: ag.observacoes || null
+        observacoes: ag.observacoes || null,
+        valor: ag.valor_total || ag.valor || null
       }
     })
 
