@@ -1,6 +1,62 @@
 import { apiGet, apiPost, apiDelete, API_CONFIG } from './api-config'
 import { Profissional, Servico, Agendamento, Cliente } from './supabase'
 
+function normalizarDataAgendamento(data?: string | null): string | null {
+  if (!data) return null
+
+  if (data.includes('/')) {
+    const [dia, mes, ano] = data.split('/')
+    if (dia && mes && ano) {
+      return `${ano}-${mes.padStart(2, '0')}-${dia.padStart(2, '0')}`
+    }
+  }
+
+  if (data.includes('T')) {
+    return data.split('T')[0]
+  }
+
+  return data
+}
+
+function mapServicosHistorico(ag: any): Servico[] {
+  if (Array.isArray(ag.agendamento_servicos)) {
+    const servicos = ag.agendamento_servicos.map((as: any) => {
+      const servico = as.servicos || as
+      if (!servico) return null
+
+      return {
+        id: servico.id || as.id || '',
+        nome: servico.nome,
+        descricao: servico.descricao,
+        preco: Number(servico.valor ?? servico.preco ?? as.valor ?? as.preco ?? 0),
+        duracao_minutos: Number(servico.duracao_minutos ?? as.duracao_minutos ?? 0),
+        ativo: servico.ativo ?? true
+      } as Servico
+    })
+
+    return servicos.filter(Boolean) as Servico[]
+  }
+
+  return Array.isArray(ag.servicos) ? ag.servicos : []
+}
+
+function mapAgendamentoHistorico(ag: any): Agendamento {
+  const dataAgendamento = normalizarDataAgendamento(ag.data_agendamento || ag.data)
+  const servicos = mapServicosHistorico(ag)
+  const profissional = ag.profissional || ag.profissionais || (ag.barbeiro ? { nome: ag.barbeiro } : null)
+
+  return {
+    id: ag.id,
+    data_agendamento: dataAgendamento || ag.data_agendamento,
+    hora_inicio: ag.hora_inicio,
+    status: ag.status,
+    profissional,
+    servico: servicos && servicos[0] ? servicos[0] : null,
+    servicos,
+    observacoes: ag.observacoes ?? null
+  } as Agendamento
+}
+
 /**
  * Busca todos os barbeiros/profissionais ativos
  */
@@ -103,6 +159,10 @@ export async function buscarAgendamentosCliente(
   filtro?: 'proximos' | 'historico'
 ): Promise<Agendamento[]> {
   try {
+    if (filtro === 'historico') {
+      return await buscarHistoricoCliente(telefoneOrId)
+    }
+
     // Usa proxy local para evitar CORS
     const response = await fetch(`/api/proxy/meus-agendamentos?telefone=${telefoneOrId}`, {
       headers: { 'Content-Type': 'application/json' },
@@ -259,17 +319,24 @@ export async function confirmarComparecimento(
 /**
  * Busca histórico completo do cliente
  */
-export async function buscarHistoricoCliente(telefone: string): Promise<any> {
+export async function buscarHistoricoCliente(telefone: string): Promise<Agendamento[]> {
   try {
-    const response = await apiGet<any>(
-      API_CONFIG.ENDPOINTS.CLIENTES_HISTORICO,
-      { telefone }
-    )
+    const response = await fetch(`/api/proxy/clientes-historico?telefone=${telefone}`, {
+      headers: { 'Content-Type': 'application/json' },
+      cache: 'no-store'
+    })
 
-    return response
+    if (!response.ok) {
+      throw new Error('Erro ao buscar historico')
+    }
+
+    const data = await response.json() as any
+    const agendamentosRaw = data?.agendamentos || []
+
+    return agendamentosRaw.map(mapAgendamentoHistorico)
   } catch (error) {
     console.error('Erro ao buscar histórico:', error)
-    return null
+    return []
   }
 }
 
