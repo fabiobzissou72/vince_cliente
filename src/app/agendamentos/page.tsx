@@ -192,6 +192,14 @@ export default function AgendamentosPage() {
                       <p className="text-xs text-muted-foreground mt-2">
                         📦 Retire na barbearia
                       </p>
+                      {agendamento.valor && (
+                        <div className="pt-2 mt-2 border-t border-border flex items-center justify-between">
+                          <span className="text-sm font-bold">Valor Total</span>
+                          <span className="text-base font-bold text-vinci-gold">
+                            {formatarDinheiro(agendamento.valor)}
+                          </span>
+                        </div>
+                      )}
                     </div>
                   )}
 
@@ -205,6 +213,14 @@ export default function AgendamentosPage() {
                       <p className="text-xs text-muted-foreground mt-2">
                         🎁 Pacote adquirido - Sessão agendada
                       </p>
+                      {agendamento.valor && (
+                        <div className="pt-2 mt-2 border-t border-border flex items-center justify-between">
+                          <span className="text-sm font-bold">Valor Total</span>
+                          <span className="text-base font-bold text-vinci-gold">
+                            {formatarDinheiro(agendamento.valor)}
+                          </span>
+                        </div>
+                      )}
                     </div>
                   )}
 
