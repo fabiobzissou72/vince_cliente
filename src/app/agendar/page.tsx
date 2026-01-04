@@ -49,6 +49,7 @@ interface Barbeiro {
   nome: string
   especialidade?: string
   ativo: boolean
+  foto_url?: string
 }
 
 interface CarrinhoItem {
