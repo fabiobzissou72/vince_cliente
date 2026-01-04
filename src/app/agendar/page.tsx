@@ -441,10 +441,10 @@ export default function AgendarPage() {
 
               {tabAtiva === 'planos' && planos.map((p) => (
                 <div key={p.id} onClick={() => toggleCarrinho({ id: p.id, tipo: 'plano', nome: p.nome, preco: p.valor_total })} className={`card cursor-pointer border-2 ${itemNoCarrinho(p.id, 'plano') ? 'border-vinci-primary bg-vinci-primary/5' : 'border-blue-300'}`}>
-                  <h3 className="font-bold text-xl">{p.nome}</h3>
+                  <h3 className="font-bold text-lg">{p.nome}</h3>
                   <p className="text-sm text-muted-foreground mt-1">{p.itens_inclusos}</p>
                   <div className="flex justify-between items-center mt-3">
-                    <span className="text-2xl font-bold text-vinci-gold">R$ {p.valor_total.toFixed(2)}</span>
+                    <span className="text-lg font-bold text-vinci-gold">R$ {p.valor_total.toFixed(2)}</span>
                     <button className={`px-6 py-2 rounded-lg font-semibold transition-colors ${itemNoCarrinho(p.id, 'plano') ? 'bg-vinci-primary text-white' : 'bg-white dark:bg-slate-700 text-slate-900 dark:text-white border-2 border-vinci-primary/20'}`}>
                       {itemNoCarrinho(p.id, 'plano') ? 'Selecionado' : 'Assinar'}
                     </button>
