@@ -30,8 +30,8 @@ export default function PerfilPage() {
     profissao: '',
     estado_civil: '',
     tem_filhos: undefined as boolean | undefined,
-    estilo_preferido: '',
-    bebida_preferida: '',
+    estilo_cabelo: '',
+    tipo_bebida: '',
     gosta_conversar: undefined as boolean | undefined,
     observacoes: ''
   })
@@ -77,8 +77,8 @@ export default function PerfilPage() {
         profissao: cliente.profissao || '',
         estado_civil: cliente.estado_civil || '',
         tem_filhos: cliente.tem_filhos,
-        estilo_preferido: cliente.estilo_preferido || '',
-        bebida_preferida: cliente.bebida_preferida || '',
+        estilo_cabelo: cliente.estilo_cabelo || '',
+        tipo_bebida: cliente.tipo_bebida || '',
         gosta_conversar: cliente.gosta_conversar,
         observacoes: cliente.observacoes || ''
       })
@@ -279,22 +279,22 @@ export default function PerfilPage() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium mb-2">Estilo Preferido</label>
+                <label className="block text-sm font-medium mb-2">Estilo de Cabelo</label>
                 <input
                   type="text"
-                  value={dadosEditados.estilo_preferido}
-                  onChange={(e) => setDadosEditados({ ...dadosEditados, estilo_preferido: e.target.value })}
+                  value={dadosEditados.estilo_cabelo}
+                  onChange={(e) => setDadosEditados({ ...dadosEditados, estilo_cabelo: e.target.value })}
                   className="input-field"
                   placeholder="Seu estilo de corte preferido"
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium mb-2">Bebida Preferida</label>
+                <label className="block text-sm font-medium mb-2">Tipo de Bebida</label>
                 <input
                   type="text"
-                  value={dadosEditados.bebida_preferida}
-                  onChange={(e) => setDadosEditados({ ...dadosEditados, bebida_preferida: e.target.value })}
+                  value={dadosEditados.tipo_bebida}
+                  onChange={(e) => setDadosEditados({ ...dadosEditados, tipo_bebida: e.target.value })}
                   className="input-field"
                   placeholder="Ex: Café, Água, Refrigerante"
                 />
@@ -423,17 +423,17 @@ export default function PerfilPage() {
                 </div>
               )}
 
-              {cliente.estilo_preferido && (
+              {cliente.estilo_cabelo && (
                 <div className="pt-3 border-t border-border">
-                  <p className="text-sm text-muted-foreground mb-1">Estilo Preferido</p>
-                  <p className="font-medium">{cliente.estilo_preferido}</p>
+                  <p className="text-sm text-muted-foreground mb-1">Estilo de Cabelo</p>
+                  <p className="font-medium">{cliente.estilo_cabelo}</p>
                 </div>
               )}
 
-              {cliente.bebida_preferida && (
+              {cliente.tipo_bebida && (
                 <div className="pt-3 border-t border-border">
-                  <p className="text-sm text-muted-foreground mb-1">Bebida Preferida</p>
-                  <p className="font-medium">{cliente.bebida_preferida}</p>
+                  <p className="text-sm text-muted-foreground mb-1">Tipo de Bebida</p>
+                  <p className="font-medium">{cliente.tipo_bebida}</p>
                 </div>
               )}
             </div>

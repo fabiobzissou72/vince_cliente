@@ -443,7 +443,7 @@ export default function AgendarPage() {
                   <h3 className="font-bold text-xl">{p.nome}</h3>
                   <p className="text-sm text-muted-foreground mt-1">{p.itens_inclusos}</p>
                   <div className="flex justify-between items-center mt-3">
-                    <span className="text-2xl font-bold text-blue-600">R$ {p.valor_total.toFixed(2)}</span>
+                    <span className="text-2xl font-bold text-vinci-gold">R$ {p.valor_total.toFixed(2)}</span>
                     <button className={`px-6 py-2 rounded-lg font-semibold transition-colors ${itemNoCarrinho(p.id, 'plano') ? 'bg-vinci-primary text-white' : 'bg-white dark:bg-slate-700 text-slate-900 dark:text-white border-2 border-vinci-primary/20'}`}>
                       {itemNoCarrinho(p.id, 'plano') ? 'Selecionado' : 'Assinar'}
                     </button>
@@ -538,7 +538,15 @@ export default function AgendarPage() {
                       className="w-full p-4 rounded-xl border-2 border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-800 hover:border-vinci-primary dark:hover:border-vinci-accent transition-all flex items-center space-x-4"
                     >
                       <div className="w-12 h-12 rounded-full bg-gray-300 dark:bg-gray-600 flex items-center justify-center overflow-hidden flex-shrink-0">
-                        <User className="w-6 h-6 text-gray-600 dark:text-gray-300" />
+                        {b.foto_url ? (
+                          <img
+                            src={b.foto_url}
+                            alt={b.nome}
+                            className="w-full h-full object-cover"
+                          />
+                        ) : (
+                          <User className="w-6 h-6 text-gray-600 dark:text-gray-300" />
+                        )}
                       </div>
                       <div className="text-left flex-1">
                         <p className="font-bold text-slate-900 dark:text-white">{b.nome}</p>

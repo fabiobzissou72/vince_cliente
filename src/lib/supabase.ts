@@ -30,8 +30,8 @@ export interface Cliente {
   is_vip: boolean
   como_soube?: string
   gosta_conversar?: boolean
-  estilo_preferido?: string
-  bebida_preferida?: string
+  estilo_cabelo?: string
+  tipo_bebida?: string
   data_cadastro: string
   ultimo_acesso?: string
 }
