@@ -4,7 +4,7 @@
 
 export const API_CONFIG = {
   BASE_URL: process.env.NEXT_PUBLIC_API_BASE_URL || 'https://vincibarbearia.vercel.app',
-  TOKEN: process.env.NEXT_PUBLIC_API_TOKEN || 'vinci_j7mNuInUyCKojb6HH79jOMHH8zwb03hBwSONDhodZbOtRMbGMchazIO1zW7Ea7uv',
+  TOKEN: process.env.NEXT_PUBLIC_API_TOKEN,
   ENDPOINTS: {
     // Agendamentos
     AGENDAMENTOS_LISTAR: '/api/agendamentos',
