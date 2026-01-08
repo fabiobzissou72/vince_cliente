@@ -239,6 +239,12 @@ export default function AgendarPage() {
     return barbeiro?.nome || 'Barbeiro'
   }
 
+  function getFotoBarbeiro(id: string): string | undefined {
+    if (id === 'Qualquer') return undefined
+    const barbeiro = barbeiros.find(b => b.id === id)
+    return barbeiro?.foto_url || undefined
+  }
+
   // Detecta o tipo de carrinho
   const temServicos = carrinho.some(i => i.tipo === 'servico')
   const temPlanos = carrinho.some(i => i.tipo === 'plano')
@@ -504,7 +510,15 @@ export default function AgendarPage() {
               <div className="bg-white dark:bg-gray-800 rounded-2xl p-4 shadow-sm">
                 <div className="flex items-center space-x-4">
                   <div className="w-16 h-16 rounded-full bg-gray-300 dark:bg-gray-600 flex items-center justify-center overflow-hidden">
-                    <User className="w-8 h-8 text-gray-600 dark:text-gray-300" />
+                    {getFotoBarbeiro(barbeiroSelecionado) ? (
+                      <img
+                        src={getFotoBarbeiro(barbeiroSelecionado)}
+                        alt={getNomeBarbeiro(barbeiroSelecionado)}
+                        className="w-full h-full object-cover"
+                      />
+                    ) : (
+                      <User className="w-8 h-8 text-gray-600 dark:text-gray-300" />
+                    )}
                   </div>
                   <div>
                     <h3 className="text-xl font-bold">{getNomeBarbeiro(barbeiroSelecionado)}</h3>
