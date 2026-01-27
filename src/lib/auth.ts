@@ -56,6 +56,47 @@ export async function loginCliente(telefone: string, senha: string): Promise<Aut
 }
 
 /**
+ * Converte estado civil do formato do app para o formato do dashboard
+ */
+function converterEstadoCivil(valor?: string): string | null {
+  if (!valor) return null
+  const mapa: Record<string, string> = {
+    'solteiro': 'Solteiro(a)',
+    'casado': 'Casado(a)',
+    'divorciado': 'Divorciado(a)',
+    'viuvo': 'Viúvo(a)'
+  }
+  return mapa[valor.toLowerCase()] || valor
+}
+
+/**
+ * Converte como_soube do formato do app para o formato do dashboard
+ */
+function converterComoSoube(valor?: string): string | null {
+  if (!valor) return null
+  const mapa: Record<string, string> = {
+    'indicacao': 'Indicação',
+    'redes_sociais': 'Instagram',
+    'google': 'Google',
+    'passando': 'Passando na Rua',
+    'outro': 'Outro'
+  }
+  return mapa[valor.toLowerCase()] || valor
+}
+
+/**
+ * Converte data de YYYY-MM-DD para DD/MM/YYYY
+ */
+function converterData(data?: string): string | null {
+  if (!data) return null
+  const partes = data.split('-')
+  if (partes.length === 3 && partes[0].length === 4) {
+    return `${partes[2]}/${partes[1]}/${partes[0]}`
+  }
+  return data
+}
+
+/**
  * Cadastra novo cliente com senha
  */
 export async function cadastrarCliente(dados: {
@@ -88,6 +129,13 @@ export async function cadastrarCliente(dados: {
     // Hash da senha
     const senhaHash = await bcrypt.hash(dados.senha, 10)
 
+    // Converte dados para o formato esperado pelo dashboard
+    const estadoCivilConvertido = converterEstadoCivil(dados.estado_civil)
+    const comoSoubeConvertido = converterComoSoube(dados.como_soube)
+    const dataNascimentoConvertida = converterData(dados.data_nascimento)
+    const temFilhosConvertido = dados.tem_filhos === undefined ? null : (dados.tem_filhos ? 'Sim' : 'Não')
+    const gostaConversarConvertido = dados.gosta_conversar === undefined ? null : (dados.gosta_conversar ? 'Sim' : 'Não')
+
     // Cria cliente
     const { data: novoCliente, error } = await supabase
       .from('clientes')
@@ -96,12 +144,12 @@ export async function cadastrarCliente(dados: {
         telefone: telefoneLimpo,
         email: dados.email,
         senha: senhaHash,
-        data_nascimento: dados.data_nascimento || null,
+        data_nascimento: dataNascimentoConvertida,
         profissao: dados.profissao || null,
-        estado_civil: dados.estado_civil || null,
-        tem_filhos: dados.tem_filhos || null,
-        como_soube: dados.como_soube || null,
-        gosta_conversar: dados.gosta_conversar || null,
+        estado_civil: estadoCivilConvertido,
+        tem_filhos: temFilhosConvertido,
+        como_soube: comoSoubeConvertido,
+        gosta_conversar: gostaConversarConvertido,
         is_vip: false,
         data_cadastro: new Date().toISOString(),
         ultimo_acesso: new Date().toISOString()
